@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. Parallax Habu</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--void:#00000F;--gold:#C9A84C;--teal:#00E5CC;--violet:#7B3FE4;--red:#E8453C;--white:#E8E8F4;--muted:#4A4A6A;--border:#1A1A3A;--anime:#FF6B9D;--art:#FF9F43;--surface:rgba(255,255,255,.028)}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:var(--white);font-family:'Space Grotesk',sans-serif}
+#galaxy{position:fixed;inset:0;z-index:0}
+#intro{position:fixed;inset:0;z-index:200;background:var(--void);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.4s ease,visibility 1.4s ease}
+#intro.out{opacity:0;visibility:hidden;pointer-events:none}
+.i-title{font-family:'Orbitron',monospace;font-size:clamp(22px,5vw,60px);font-weight:900;letter-spacing:.15em;text-align:center;background:linear-gradient(135deg,var(--gold),var(--teal),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;transform:translateY(24px);transition:opacity .9s,transform .9s}
+.i-title.on{opacity:1;transform:translateY(0)}
+.i-sub{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.3em;margin-top:12px;text-align:center;opacity:0;transition:opacity 1s .7s}
+.i-sub.on{opacity:1}
+.i-bar{width:200px;height:2px;background:var(--border);margin-top:36px;border-radius:1px;overflow:hidden;opacity:0;transition:opacity .5s .4s}
+.i-bar.on{opacity:1}
+.i-fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--teal));transition:width 2.6s cubic-bezier(.4,0,.2,1) .8s}
+.i-fill.go{width:100%}
+.i-hint{font-size:10px;color:var(--muted);margin-top:10px;letter-spacing:.15em;opacity:0;transition:opacity .5s 2.6s}
+.i-hint.on{opacity:1}
+#load{position:fixed;inset:0;z-index:180;background:rgba(0,0,15,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+#load.on{opacity:1;visibility:visible}
+.load-name{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;letter-spacing:.25em;color:var(--gold);margin-bottom:18px;opacity:0;transform:translateY(8px);transition:opacity .35s .1s,transform .35s .1s}
+#load.on .load-name{opacity:1;transform:translateY(0)}
+.load-bar{width:160px;height:2px;background:var(--border);border-radius:1px;overflow:hidden}
+.load-fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--teal));border-radius:1px}
+#hud{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;padding:12px 24px;background:linear-gradient(to bottom,rgba(0,0,15,.97) 70%,transparent);gap:12px;opacity:0;pointer-events:none;transition:opacity .8s;flex-wrap:wrap}
+#hud.on{opacity:1;pointer-events:all}
+.hud-logo{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.2em;cursor:pointer;flex-shrink:0;transition:color .2s}
+.hud-logo:hover{color:var(--teal)}
+.hud-logo span{color:var(--teal)}
+.hud-nav{display:flex;gap:5px;flex-wrap:wrap;flex:1;justify-content:center}
+.nb{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:9px;font-weight:500;padding:4px 9px;transition:all .18s;white-space:nowrap}
+.nb:hover,.nb.on{background:rgba(201,168,76,.1);border-color:var(--gold);color:var(--gold)}
+.hud-stats{display:flex;gap:14px;flex-shrink:0}
+.hs{text-align:center}
+.hs .v{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:var(--teal);line-height:1}
+.hs .l{font-size:8px;color:var(--muted);letter-spacing:.12em;margin-top:2px}
+.hs-streak{background:rgba(0,229,204,.07);border:1px solid rgba(0,229,204,.2);border-radius:6px;padding:4px 10px}
+#gview{position:fixed;inset:0;z-index:10;pointer-events:none;opacity:0;transition:opacity .9s .4s}
+#gview.on{opacity:1;pointer-events:all}
+.g-hint{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.2em;animation:breath 3s ease infinite;white-space:nowrap}
+@keyframes breath{0%,100%{opacity:.25}50%{opacity:.75}}
+.plabel{position:fixed;transform:translate(-50%,-50%);pointer-events:all;cursor:pointer;text-align:center;z-index:20;transition:transform .2s}
+.plabel:hover{transform:translate(-50%,-50%) scale(1.18)}
+.porb{border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:18px;transition:filter .3s}
+.plabel:hover .porb{filter:brightness(1.35)}
+.pname{font-family:'Orbitron',monospace;font-size:8px;letter-spacing:.12em;color:var(--white)}
+.plvl{font-family:'JetBrains Mono',monospace;font-size:7px;color:var(--muted);margin-top:1px}
+.mlabel{position:fixed;transform:translate(-50%,-50%);pointer-events:none;text-align:center;z-index:18;opacity:0;transition:opacity .4s}
+.mlabel.vis{opacity:1;pointer-events:all}
+.morb{border-radius:50%;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;font-size:10px}
+.mname{font-family:'JetBrains Mono',monospace;font-size:6px;color:var(--muted)}
+#panel{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;visibility:hidden;opacity:0;pointer-events:none;background:rgba(0,0,15,.97);transition:opacity .3s}
+#panel.on{visibility:visible;opacity:1;pointer-events:all}
+.ph{display:flex;align-items:center;gap:14px;padding:16px 32px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.pback{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;flex-shrink:0}
+.pback:hover{background:rgba(201,168,76,.15);border-color:var(--gold)}
+.pico{font-size:28px;flex-shrink:0}
+.ptitles{flex:1}
+.pname{font-family:'Orbitron',monospace;font-size:17px;font-weight:700;letter-spacing:.08em;transition:color .3s}
+.ptag{font-size:10px;color:var(--muted);margin-top:2px;font-style:italic}
+.pmeta{text-align:right;flex-shrink:0}
+.pstars{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600}
+.pstarsl{font-size:8px;color:var(--muted);letter-spacing:.12em}
+.pprog{height:2px;background:var(--border);border-radius:1px;margin-top:5px;overflow:hidden;width:90px;margin-left:auto}
+.pprogf{height:100%;border-radius:1px;transition:width 1s ease .2s}
+.ptabs{display:flex;padding:0 32px;background:rgba(0,0,10,.6);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.ptabs::-webkit-scrollbar{height:0}
+.ptab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;padding:8px 12px;transition:all .2s;white-space:nowrap;margin-bottom:-1px}
+.ptab:hover{color:var(--white)}
+.ptab.on{border-bottom-color:var(--gold);color:var(--gold)}
+.pbody{flex:1;overflow-y:auto;overflow-x:hidden;padding:22px 32px}
+.pbody::-webkit-scrollbar{width:3px}
+.pbody::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-content:start}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-content:start}
+.full{grid-column:1/-1}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;transition:border-color .2s}
+.card:hover{border-color:rgba(201,168,76,.18)}
+.ct{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.ct::after{content:'';flex:1;height:1px;background:var(--border)}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld label{font-size:8px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.fld input,.fld select,.fld textarea{background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Space Grotesk',sans-serif;font-size:12px;padding:7px 11px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,.1)}
+.fld textarea{resize:vertical;min-height:65px}
+.row{display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap}
+.grow{flex:1;min-width:130px}
+.btn{padding:6px 16px;border:none;border-radius:7px;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;position:relative;overflow:hidden}
+.btn:active{transform:scale(.96)}
+.bg{background:linear-gradient(135deg,var(--gold),#7a4a10);color:#000}
+.bt{background:linear-gradient(135deg,var(--teal),#007a6e);color:#000}
+.bv{background:linear-gradient(135deg,var(--violet),#3d1090);color:#fff}
+.br{background:linear-gradient(135deg,var(--red),#8a1a10);color:#fff}
+.ba{background:linear-gradient(135deg,var(--anime),#9a1a5a);color:#fff}
+.bgh{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted)}
+.bgh:hover{border-color:var(--gold);color:var(--gold)}
+.bsm{padding:3px 10px;font-size:10px}
+.s4{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.sbox{background:rgba(0,0,0,.3);border-radius:9px;padding:11px}
+.sbox .n{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;line-height:1}
+.sbox .l{font-size:8px;color:var(--muted);letter-spacing:.08em;margin-top:3px}
+.mcal{display:flex;gap:2px;flex-wrap:wrap}
+.cd{width:18px;height:18px;border-radius:3px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:7px;font-family:'JetBrains Mono',monospace;color:var(--muted)}
+.cd.has{font-weight:600;color:#000}
+.cd.tod{outline:1px solid var(--teal);outline-offset:1px}
+.hi{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);animation:fadeUp .3s ease}
+.hi:last-child{border-bottom:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.hib{flex:1}
+.hit{font-size:12px;line-height:1.3}
+.him{font-size:9px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.badge{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;flex-shrink:0}
+.chan-list{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.chan-item{display:flex;align-items:center;gap:9px;padding:7px 11px;background:rgba(0,0,0,.3);border-radius:7px;cursor:pointer;transition:all .18s;border:1px solid transparent}
+.chan-item:hover,.chan-item.on{background:rgba(201,168,76,.07);border-color:rgba(201,168,76,.18)}
+.chan-hash{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted)}
+.chan-name{font-size:12px;flex:1}
+.chan-ct{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
+.msg-area{background:rgba(0,0,0,.3);border-radius:9px;padding:12px;min-height:180px;max-height:300px;overflow-y:auto;margin-bottom:9px;display:flex;flex-direction:column;gap:7px}
+.msg{display:flex;gap:9px;animation:fadeUp .25s ease}
+.msg-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000;flex-shrink:0}
+.msg-body{flex:1}
+.msg-user{font-size:10px;font-weight:600}
+.msg-text{font-size:11px;color:rgba(232,232,244,.8);margin-top:2px;line-height:1.4}
+.msg-time{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);margin-top:2px}
+.msg-row{display:flex;gap:7px}
+.msg-input{flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Space Grotesk',sans-serif;font-size:11px;padding:7px 11px;outline:none;transition:border-color .2s}
+.msg-input:focus{border-color:var(--gold)}
+.post-card{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:8px;transition:border-color .2s;display:flex;gap:10px;animation:fadeUp .3s ease}
+.post-card:hover{border-color:rgba(201,168,76,.3)}
+.votes{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0}
+.vbtn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;transition:color .15s;padding:1px}
+.vbtn:hover{color:var(--gold)}
+.vnum{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;min-width:20px;text-align:center}
+.post-body{flex:1}
+.post-title{font-size:13px;font-weight:600;margin-bottom:4px;cursor:pointer;transition:color .15s}
+.post-title:hover{color:var(--gold)}
+.post-meta{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:6px}
+.like-row{display:flex;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid var(--border);flex-wrap:wrap}
+.lbtn{background:none;border:1px solid var(--border);border-radius:20px;color:var(--muted);cursor:pointer;font-size:10px;padding:2px 9px;transition:all .18s;display:inline-flex;align-items:center;gap:3px}
+.lbtn.heart:hover,.lbtn.heart.on{background:rgba(232,69,60,.1);border-color:var(--red);color:var(--red)}
+.lbtn.rocket:hover,.lbtn.rocket.on{background:rgba(0,229,204,.1);border-color:var(--teal);color:var(--teal)}
+.lbtn.fire:hover,.lbtn.fire.on{background:rgba(255,159,67,.1);border-color:var(--art);color:var(--art)}
+.lbtn.brain:hover,.lbtn.brain.on{background:rgba(123,63,228,.1);border-color:var(--violet);color:var(--violet)}
+.pj-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pj-card{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:9px;padding:14px;transition:border-color .2s,transform .2s;animation:fadeUp .3s ease}
+.pj-card:hover{border-color:rgba(201,168,76,.28);transform:translateY(-2px)}
+.pst{display:inline-flex;align-items:center;gap:3px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.08em;padding:2px 7px;border-radius:4px;margin-bottom:7px}
+.sdev{background:rgba(0,229,204,.1);color:var(--teal)}
+.sdone{background:rgba(0,200,150,.1);color:#00C896}
+.sidea{background:rgba(201,168,76,.1);color:var(--gold)}
+.spause{background:rgba(232,69,60,.1);color:var(--red)}
+.pj-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.pj-desc{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:7px}
+.pj-tags{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:7px}
+.ptg{font-size:8px;color:var(--muted);background:rgba(255,255,255,.05);border-radius:3px;padding:1px 5px}
+.pj-link{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--teal);text-decoration:none;word-break:break-all}
+.para-card{background:rgba(0,0,0,.32);border:1px solid var(--border);border-radius:11px;padding:16px;margin-bottom:10px;transition:border-color .2s,transform .2s;animation:fadeUp .3s ease}
+.para-card:hover{border-color:rgba(123,63,228,.35);transform:translateY(-1px)}
+.para-card.eternal{border-color:rgba(201,168,76,.45);background:rgba(201,168,76,.025)}
+.pst-badge{display:inline-flex;align-items:center;gap:3px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.08em;padding:2px 7px;border-radius:4px;margin-bottom:7px}
+.ps-open{background:rgba(0,229,204,.1);color:var(--teal)}
+.ps-debate{background:rgba(123,63,228,.1);color:var(--violet)}
+.ps-resist{background:rgba(201,168,76,.1);color:var(--gold)}
+.ps-eternal{background:rgba(255,215,0,.12);color:#FFD700;animation:gp 2s ease infinite}
+@keyframes gp{0%,100%{box-shadow:0 0 4px rgba(255,215,0,.2)}50%{box-shadow:0 0 10px rgba(255,215,0,.5)}}
+.para-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:5px;line-height:1.3}
+.para-body{font-size:11px;color:rgba(232,232,244,.65);line-height:1.5;margin-bottom:8px}
+.para-hint{font-size:10px;color:var(--teal);background:rgba(0,229,204,.05);border-left:2px solid var(--teal);padding:5px 9px;margin-bottom:8px;border-radius:0 6px 6px 0;line-height:1.4}
+.para-meta{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.para-awards{display:flex;gap:5px;margin-top:7px}
+.book-card{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:9px;display:flex;gap:12px;animation:fadeUp .3s ease}
+.book-spine{width:6px;border-radius:2px;flex-shrink:0;align-self:stretch}
+.book-info{flex:1}
+.book-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;margin-bottom:2px}
+.book-author{font-size:10px;color:var(--muted);margin-bottom:7px}
+.book-prog-bar{height:2px;background:var(--border);border-radius:1px;overflow:hidden;margin-bottom:3px}
+.book-prog-fill{height:100%;border-radius:1px;transition:width .8s ease}
+.book-prog-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)}
+.pub-card{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:11px;padding:14px;margin-bottom:9px;transition:border-color .2s;animation:fadeUp .3s ease}
+.pub-card:hover{border-color:rgba(201,168,76,.3)}
+.pub-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
+.pub-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;line-height:1.3;flex:1}
+.pub-type{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 7px;border-radius:4px;background:rgba(123,63,228,.12);color:var(--violet);margin-left:9px;flex-shrink:0}
+.pub-meta{display:flex;gap:10px;font-size:9px;color:var(--muted);margin-bottom:5px;flex-wrap:wrap}
+.pub-body{font-size:11px;color:rgba(232,232,244,.62);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.note-item{background:rgba(0,0,0,.3);border-left:3px solid var(--gold);border-radius:0 7px 7px 0;padding:9px 11px;margin-bottom:6px;animation:fadeUp .3s ease}
+.note-item p{font-size:11px;line-height:1.5}
+.note-meta{font-size:8px;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace}
+.curio-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);animation:fadeUp .3s ease}
+.curio-item:last-child{border-bottom:none}
+.curio-n{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;color:var(--border);flex-shrink:0;width:26px;line-height:1.1}
+.curio-body{flex:1}
+.curio-text{font-size:11px;line-height:1.5}
+.curio-cat{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);margin-top:3px;letter-spacing:.07em}
+.miss-item{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border);animation:fadeUp .3s ease}
+.miss-item:last-child{border-bottom:none}
+.mcheck{width:21px;height:21px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .25s;font-size:10px}
+.mcheck.done{background:var(--teal);border-color:var(--teal);color:#000}
+.miss-b{flex:1}
+.miss-t{font-size:12px;font-weight:500}
+.miss-t.done{text-decoration:line-through;color:var(--muted)}
+.miss-cat{font-size:9px;color:var(--muted);margin-top:1px}
+.miss-stars{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)}
+.gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.disc-card{background:rgba(0,0,0,.32);border:1px solid var(--border);border-radius:9px;padding:13px;transition:border-color .2s,transform .2s;cursor:pointer;animation:fadeUp .3s ease}
+.disc-card:hover{border-color:var(--teal);transform:translateY(-2px)}
+.disc-emoji{font-size:24px;margin-bottom:5px}
+.disc-title{font-size:11px;font-weight:600;margin-bottom:2px}
+.disc-body{font-size:10px;color:var(--muted);line-height:1.4}
+.disc-date{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);margin-top:6px}
+.civ-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:7px 0}
+.civ-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--teal),var(--violet));border-radius:3px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.legacy-card{background:linear-gradient(135deg,rgba(201,168,76,.04),rgba(123,63,228,.04));border:1px solid rgba(201,168,76,.18);border-radius:12px;padding:18px;text-align:center}
+.legacy-quote{font-family:'Playfair Display',serif;font-size:14px;font-style:italic;line-height:1.6;color:rgba(232,232,244,.75);margin:10px 0}
+.anime-card{background:rgba(255,107,157,.03);border:1px solid rgba(255,107,157,.12);border-radius:10px;padding:14px;margin-bottom:9px;transition:border-color .2s;animation:fadeUp .3s ease}
+.anime-card:hover{border-color:rgba(255,107,157,.35)}
+.star-btn{background:none;border:none;cursor:pointer;font-size:14px;color:var(--border);transition:color .15s,transform .15s}
+.star-btn.lit{color:#FFD700}
+.star-btn:hover{transform:scale(1.2)}
+.debate-card{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:9px;padding:13px;margin-bottom:7px;animation:fadeUp .3s ease}
+.debate-title{font-size:13px;font-weight:600;color:var(--anime);margin-bottom:7px}
+.debate-sides{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.debate-side{padding:9px;border-radius:7px;font-size:11px}
+.side-a{background:rgba(255,107,157,.07);border:1px solid rgba(255,107,157,.18)}
+.side-b{background:rgba(0,229,204,.07);border:1px solid rgba(0,229,204,.18)}
+#drawCanvas{border-radius:9px;cursor:crosshair;display:block;width:100%;background:#060614;touch-action:none}
+.draw-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.draw-color{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .15s;flex-shrink:0}
+.draw-color.on{border-color:white;transform:scale(1.2)}
+.draw-size{appearance:none;-webkit-appearance:none;width:70px;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer}
+.draw-size::-webkit-slider-thumb{appearance:none;width:13px;height:13px;border-radius:50%;background:var(--gold);cursor:pointer}
+.dtbtn{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:5px;color:var(--muted);cursor:pointer;font-size:10px;padding:3px 9px;transition:all .18s}
+.dtbtn.on,.dtbtn:hover{background:rgba(201,168,76,.1);border-color:var(--gold);color:var(--gold)}
+.nerd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:16px}
+.nerd-card{background:rgba(0,0,0,.32);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;animation:fadeUp .3s ease}
+.nerd-card:hover{border-color:var(--violet);transform:translateY(-2px);background:rgba(123,63,228,.05)}
+.nerd-icon{font-size:24px;margin-bottom:7px}
+.nerd-name{font-size:12px;font-weight:600;color:var(--violet);margin-bottom:3px}
+.nerd-desc{font-size:10px;color:var(--muted);line-height:1.4}
+.hyp-card{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:9px;padding:13px;margin-bottom:8px;animation:fadeUp .3s ease}
+.hyp-h{font-size:12px;font-weight:600;margin-bottom:5px}
+.hyp-h0{font-size:10px;color:var(--muted);font-style:italic;margin-bottom:8px;padding-left:8px;border-left:2px solid var(--muted)}
+.hyp-ev{display:flex;gap:8px;margin-top:8px}
+.ev-bar{flex:1}
+.ev-label{font-size:8px;color:var(--muted);margin-bottom:3px;font-family:'JetBrains Mono',monospace;letter-spacing:.08em}
+.ev-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.ev-fill-for{height:100%;background:var(--teal);border-radius:2px;transition:width .6s ease}
+.ev-fill-ag{height:100%;background:var(--red);border-radius:2px;transition:width .6s ease}
+.seti-card{background:rgba(0,229,204,.03);border:1px solid rgba(0,229,204,.15);border-radius:9px;padding:13px;margin-bottom:8px;animation:fadeUp .3s ease}
+.seti-card.classified{border-color:rgba(201,168,76,.3);background:rgba(201,168,76,.03)}
+.seti-signal{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:.1em;margin-bottom:5px}
+.seti-body{font-size:11px;line-height:1.5;margin-bottom:7px}
+.seti-dots{display:flex;gap:3px}
+.seti-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .3s}
+.seti-dot.on{background:var(--teal)}
+.oracle-card{background:rgba(123,63,228,.04);border:1px solid rgba(123,63,228,.15);border-radius:9px;padding:13px;margin-bottom:8px;animation:fadeUp .3s ease}
+.oracle-card.correct{border-color:rgba(0,200,150,.3);background:rgba(0,200,150,.04)}
+.oracle-pred{font-size:12px;font-weight:500;margin-bottom:4px}
+.oracle-deadline{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--violet)}
+.heresy-card{background:rgba(232,69,60,.03);border:1px solid rgba(232,69,60,.15);border-radius:9px;padding:13px;margin-bottom:8px;animation:fadeUp .3s ease}
+.heresy-card.legitimate{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.04)}
+.heresy-title{font-size:13px;font-weight:600;color:var(--red);margin-bottom:4px}
+.lang-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.lang-term{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);font-weight:600;min-width:100px}
+.lang-def{font-size:11px;color:rgba(232,232,244,.7);flex:1;line-height:1.4}
+.lang-date{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);flex-shrink:0}
+#immersive{position:fixed;inset:0;z-index:190;background:rgba(0,0,8,.97);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .5s,visibility .5s}
+#immersive.on{opacity:1;visibility:visible}
+#immWrite{width:min(680px,90vw);background:none;border:none;color:var(--white);font-family:'Playfair Display',serif;font-size:18px;line-height:1.8;resize:none;outline:none;min-height:60vh;caret-color:var(--gold)}
+.imm-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.2em}
+#modal{position:fixed;inset:0;z-index:160;display:flex;align-items:center;justify-content:center;background:rgba(0,0,15,.9);backdrop-filter:blur(10px);opacity:0;visibility:hidden;transition:opacity .28s,visibility .28s}
+#modal.on{opacity:1;visibility:visible}
+.mbox{background:#0A0A1E;border:1px solid var(--border);border-radius:16px;padding:26px;width:min(600px,94vw);max-height:88vh;overflow-y:auto;transform:scale(.94) translateY(10px);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+#modal.on .mbox{transform:scale(1) translateY(0)}
+.mbox::-webkit-scrollbar{width:3px}
+.mbox::-webkit-scrollbar-thumb{background:var(--border)}
+.m-title{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;letter-spacing:.08em;margin-bottom:3px}
+.m-sub{font-size:10px;color:var(--muted);margin-bottom:20px}
+.m-fields{display:flex;flex-direction:column;gap:11px}
+.m-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.m-foot{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}
+#srch{position:fixed;inset:0;z-index:170;display:flex;flex-direction:column;align-items:center;padding-top:70px;background:rgba(0,0,15,.96);backdrop-filter:blur(12px);opacity:0;visibility:hidden;transition:opacity .28s,visibility .28s}
+#srch.on{opacity:1;visibility:visible}
+#srchIn{width:min(580px,90vw);background:rgba(255,255,255,.05);border:1px solid var(--gold);border-radius:11px;color:var(--white);font-family:'Space Grotesk',sans-serif;font-size:15px;padding:12px 18px;outline:none;margin-bottom:18px}
+#srchRes{width:min(580px,90vw);max-height:58vh;overflow-y:auto}
+.sr{padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;animation:fadeUp .2s ease}
+.sr:hover{background:rgba(201,168,76,.06)}
+.sr-type{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.1em;margin-bottom:2px}
+.sr-title{font-size:12px;font-weight:500}
+.sr-snip{font-size:10px;color:var(--muted);margin-top:2px}
+mark{background:rgba(201,168,76,.22);color:var(--gold);border-radius:2px}
+#terminal{position:fixed;bottom:20px;right:20px;z-index:140;width:min(420px,92vw);background:rgba(0,0,8,.96);border:1px solid rgba(0,229,204,.25);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:11px;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s;transform:translateY(10px)}
+#terminal.on{opacity:1;visibility:visible;transform:translateY(0)}
+.term-header{display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid rgba(0,229,204,.12)}
+.term-dot{width:9px;height:9px;border-radius:50%}
+.term-title{font-size:9px;color:var(--muted);letter-spacing:.1em;flex:1;text-align:center}
+.term-body{padding:10px 12px;max-height:180px;overflow-y:auto;color:var(--teal)}
+.term-line{margin-bottom:3px;line-height:1.5}
+.term-line.cmd{color:var(--gold)}
+.term-line.err{color:var(--red)}
+.term-row{display:flex;align-items:center;gap:6px;padding:7px 12px;border-top:1px solid rgba(0,229,204,.1)}
+.term-prompt{color:var(--teal)}
+#termIn{flex:1;background:none;border:none;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none}
+#clock{position:fixed;bottom:20px;left:20px;z-index:45;background:rgba(0,0,15,.88);border:1px solid rgba(201,168,76,.22);border-radius:10px;padding:10px 14px;font-family:'JetBrains Mono',monospace;opacity:0;transition:opacity 1s;min-width:210px}
+#clock.on{opacity:1}
+.cc-date{font-size:11px;color:var(--gold);letter-spacing:.08em;margin-bottom:3px}
+.cc-time{font-size:17px;font-weight:600;color:var(--teal);letter-spacing:.04em;margin-bottom:5px}
+.cc-loc{font-size:9px;color:var(--muted);margin-bottom:7px}
+.cc-sci{font-size:8px;color:rgba(201,168,76,.55);line-height:1.7}
+.cc-sci span{color:var(--gold)}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);z-index:300;background:rgba(8,8,24,.97);border:1px solid var(--teal);border-radius:10px;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);opacity:0;transition:all .32s cubic-bezier(.4,0,.2,1);max-width:280px;pointer-events:none;text-align:center;white-space:nowrap}
+#toast.on{transform:translateX(-50%) translateY(0);opacity:1}
+.empty{text-align:center;padding:30px 14px;color:var(--muted);font-size:12px}
+.empty span{font-size:26px;display:block;margin-bottom:8px}
+@media(max-width:700px){.pbody{padding:14px}.ph{padding:12px}.pname{font-size:13px}#hud{padding:9px 12px}.g2,.g3,.m-row,.pj-grid,.debate-sides{grid-template-columns:1fr}.ptabs{padding:0 12px}.gal-grid{grid-template-columns:1fr 1fr}}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+<canvas id="galaxy"></canvas>
+<div id="intro"><div class="i-title" id="iT">DR. PARALLAX HABU</div><div class="i-sub" id="iS">CIENTISTA · EXPLORADOR · OMNÍVORO MENTAL</div><div class="i-bar" id="iB"><div class="i-fill" id="iF"></div></div><div class="i-hint" id="iH">A inicializar o universo...</div></div>
+<div id="load"><div class="load-name" id="loadName">CARREGANDO</div><div class="load-bar"><div class="load-fill" id="loadFill"></div></div></div>
+<div id="hud">
+  <div class="hud-logo" onclick="goHome()">DR.<span>PARALLAX</span>HABU</div>
+  <div class="hud-nav">
+    <button class="nb" onclick="go('diario')">📓 Diário</button>
+    <button class="nb" onclick="go('curiosidades')">💡 Curiosidades</button>
+    <button class="nb" onclick="go('projectos')">🧬 Projectos</button>
+    <button class="nb" onclick="go('missoes')">⚔️ Missões</button>
+    <button class="nb" onclick="go('galeria')">✨ Galeria</button>
+    <button class="nb" onclick="go('paradoxos')">🌀 Paradoxos</button>
+    <button class="nb" onclick="go('livros')">📚 Livros</button>
+    <button class="nb" onclick="go('civilizacao')">🌍 Civilização</button>
+    <button class="nb" onclick="go('heresias')">⚡ Heresias</button>
+    <button class="nb" onclick="go('oraculo')">🔮 Oráculo</button>
+    <button class="nb" onclick="go('linguagem')">🗣 Linguagem</button>
+    <button class="nb" onclick="go('seti')">📡 SETI</button>
+    <button class="nb" onclick="go('hipoteses')">🔬 Hipóteses</button>
+    <button class="nb" onclick="go('ferramentas')">🧰 Ferramentas</button>
+    <button class="nb" onclick="go('legado')">🏛 Legado</button>
+    <button class="nb" onclick="openSearch()">🔍</button>
+    <button class="nb" onclick="toggleTerminal()">⌨ Terminal</button>
+    <button class="nb" onclick="openImmersive()">✍ Imersivo</button>
+  </div>
+  <div class="hud-stats">
+    <div class="hs"><div class="v" id="hStars">0</div><div class="l">ESTRELAS</div></div>
+    <div class="hs hs-streak"><div class="v" id="hStreak">0</div><div class="l">STREAK</div></div>
+    <div class="hs"><div class="v" id="hConst">0</div><div class="l">CONST.</div></div>
+  </div>
+</div>
+<div id="gview"><div class="g-hint">CLICA NUM PLANETA · HOVER PARA LUAS · FÍSICA REAL</div></div>
+<div id="panel">
+  <div class="ph"><div class="pback" onclick="goHome()">←</div><div class="pico" id="pIco"></div><div class="ptitles"><div class="pname" id="pNm"></div><div class="ptag" id="pTg"></div></div><div class="pmeta"><div class="pstars" id="pSt"></div><div class="pstarsl">ESTRELAS</div><div class="pprog"><div class="pprogf" id="pPF"></div></div></div></div>
+  <div class="ptabs" id="pTabs"></div>
+  <div class="pbody" id="pBody"></div>
+</div>
+<div id="modal" onclick="if(event.target===this)closeModal()"><div class="mbox"><div class="m-title" id="mTit"></div><div class="m-sub" id="mSub"></div><div class="m-fields" id="mFlds"></div><div class="m-foot"><button class="btn bgh" onclick="closeModal()">Cancelar</button><button class="btn bg" onclick="doSave()">Guardar</button></div></div></div>
+<div id="srch" onclick="if(event.target===this)closeSearch()"><input id="srchIn" placeholder="Pesquisa em tudo..." oninput="doSearch(this.value)" onkeydown="if(event.key==='Escape')closeSearch()"><div id="srchRes"></div></div>
+<div id="immersive"><textarea id="immWrite" placeholder="Escreve livremente no cosmos..." onkeydown="if(event.key==='Escape')closeImmersive()"></textarea><div class="imm-hint">ESC para sair · guardado automaticamente</div></div>
+<div id="terminal"><div class="term-header"><div class="term-dot" style="background:#E8453C"></div><div class="term-dot" style="background:#C9A84C"></div><div class="term-dot" style="background:#00E5CC"></div><div class="term-title">PARALLAX TERMINAL</div><button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px" onclick="toggleTerminal()">✕</button></div><div class="term-body" id="termBody"></div><div class="term-row"><span class="term-prompt">❯</span><input id="termIn" placeholder="comando..." onkeydown="if(event.key==='Enter'){runCmd(this.value)}"></div></div>
+<div id="clock"><div class="cc-date" id="ccDate"></div><div class="cc-time" id="ccTime"></div><div class="cc-loc">📍 Maputo, Moçambique</div><div class="cc-sci">Horas Big Bang: <span id="ccH"></span><br>Minutos Big Bang: <span id="ccM"></span><br>Horas Terra: <span id="ccEH"></span><br>Minutos Terra: <span id="ccEM"></span></div></div>
+<div id="toast"></div>
+<script>
+const CATS=[
+  {id:'xadrez',name:'Xadrez',icon:'♟',color:'#C9A84C',tag:'Cada jogada é uma hipótese científica',size:36,moons:[{n:'Aberturas',i:'📖'},{n:'Finais',i:'♔'},{n:'Puzzles',i:'🧩'},{n:'Grandes Mestres',i:'👑'}]},
+  {id:'f1',name:'Fórmula 1',icon:'🏎',color:'#E8453C',tag:'Física newtoniana a 300km/h',size:30,moons:[{n:'Corridas',i:'🏁'},{n:'Equipas',i:'🔧'},{n:'Circuitos',i:'🗺'},{n:'Análise',i:'📊'}]},
+  {id:'mat',name:'Matemática',icon:'∑',color:'#00E5CC',tag:'A linguagem universal do cosmos',size:40,moons:[{n:'Álgebra',i:'α'},{n:'Cálculo',i:'∫'},{n:'Teoria',i:'∞'},{n:'Provas',i:'∴'}]},
+  {id:'astro',name:'Astrofísica',icon:'🔭',color:'#7B3FE4',tag:'Onde a matéria encontra o infinito',size:48,moons:[{n:'Cosmologia',i:'🌌'},{n:'Buracos Negros',i:'⚫'},{n:'Exoplanetas',i:'🪐'},{n:'Astroquímica',i:'⚗'}]},
+  {id:'livros',name:'Leitura',icon:'📖',color:'#A0C878',tag:'Os clássicos que sobrevivem ao tempo',size:28,moons:[{n:'Clássicos',i:'🏛'},{n:'Ficção Cient.',i:'🌠'},{n:'Ciência',i:'🔬'},{n:'Filosofia',i:'💭'}]},
+  {id:'quran',name:'Alcorão',icon:'☪',color:'#00C896',tag:'Recitação, tafsir, meditação',size:34,moons:[{n:'Tafsir',i:'📜'},{n:'Tajweed',i:'🎵'},{n:'Memorização',i:'💚'},{n:'Árabe Corânico',i:'ع'}]},
+  {id:'arabe',name:'Árabe',icon:'ع',color:'#C9A84C',tag:'A língua da revelação e da ciência medieval',size:26,moons:[{n:'Gramática',i:'📝'},{n:'Vocabulário',i:'🗂'},{n:'Conversação',i:'💬'},{n:'Literatura',i:'📜'}]},
+  {id:'alemao',name:'Alemão',icon:'🇩🇪',color:'#FFCC00',tag:'Wissenschaft und Abenteuer',size:26,moons:[{n:'Gramática',i:'📐'},{n:'Vocabulário',i:'📚'},{n:'Escrita',i:'✍'},{n:'Cultura',i:'🏰'}]},
+  {id:'ingles',name:'Inglês',icon:'🇬🇧',color:'#4488FF',tag:'Academic writing and beyond',size:24,moons:[{n:'Academic',i:'🎓'},{n:'Speaking',i:'🎙'},{n:'Writing',i:'✍'},{n:'Reading',i:'📄'}]},
+  {id:'medicina',name:'Medicina',icon:'🩺',color:'#FF6B6B',tag:'A ciência que toca o humano',size:42,moons:[{n:'Cirurgia',i:'🔪'},{n:'Farmacologia',i:'💊'},{n:'Anatomia',i:'🦴'},{n:'Casos Clínicos',i:'📋'}]},
+  {id:'investigacao',name:'Investigação',icon:'🧬',color:'#00E5CC',tag:'De Maputo para o mundo',size:38,moons:[{n:'Metodologia',i:'📊'},{n:'Dados',i:'💾'},{n:'Publicações',i:'📄'},{n:'Colaborações',i:'🤝'}]},
+  {id:'codigo',name:'Programação',icon:'⌨',color:'#AA88FF',tag:'Ferramentas que ampliam a ciência',size:28,moons:[{n:'Python',i:'🐍'},{n:'Web',i:'🌐'},{n:'Algoritmos',i:'⚙'},{n:'Projectos',i:'🛠'}]},
+  {id:'anime',name:'Anime',icon:'⛩',color:'#FF6B9D',tag:'Mundos que expandem a consciência',size:34,moons:[{n:'Séries',i:'📺'},{n:'Mangá',i:'📔'},{n:'Personagens',i:'⚔'},{n:'Filosofia',i:'🌸'},{n:'Fan Theories',i:'🧠'}]},
+  {id:'desenho',name:'Arte & Desenho',icon:'🎨',color:'#FF9F43',tag:'O cosmos desenhado à mão',size:32,moons:[{n:'Esboços',i:'✏'},{n:'Galeria',i:'🖼'},{n:'Técnicas',i:'🖌'},{n:'Inspiração',i:'💫'}]},
+];
+const MISSIONS=[
+  {id:'m1',title:'Resolver 3 puzzles de xadrez',cat:'xadrez',stars:5},
+  {id:'m2',title:'Ler 20 páginas',cat:'livros',stars:4},
+  {id:'m3',title:'Estudar 1 Sura',cat:'quran',stars:5},
+  {id:'m4',title:'30 min de árabe',cat:'arabe',stars:4},
+  {id:'m5',title:'15 min de alemão',cat:'alemao',stars:3},
+  {id:'m6',title:'Estudar caso clínico',cat:'medicina',stars:6},
+  {id:'m7',title:'Avançar num projecto',cat:'investigacao',stars:7},
+  {id:'m8',title:'Análise de F1',cat:'f1',stars:3},
+  {id:'m9',title:'1 problema de matemática',cat:'mat',stars:5},
+  {id:'m10',title:'Paper de astrofísica',cat:'astro',stars:6},
+  {id:'m11',title:'Episódio de anime + reflexão',cat:'anime',stars:4},
+  {id:'m12',title:'10 linhas de código',cat:'codigo',stars:4},
+];
+const BASE_PARAS=[
+  {id:'zeno',title:'Aquiles e a Tartaruga',body:'Aquiles nunca alcança a tartaruga: para alcançá-la deve chegar onde ela estava, mas ela já avançou — infinitamente.',categoria:'MATEMÁTICA',author:'Zenão de Eleia (490–430 a.C.)',dica:'A soma de uma série geométrica infinita pode ser finita. Σ(1/2ⁿ) = 1.',status:'resist',date:'0490-01-01'},
+  {id:'ship',title:'O Navio de Teseu',body:'Substituídas todas as peças, é ainda o mesmo navio? E se com as antigas se construir outro, qual é o original?',categoria:'EXISTENCIAL',author:'Plutarco (46–119 d.C.)',dica:'O que define identidade: matéria, forma, continuidade ou função?',status:'debate',date:'0046-01-01'},
+  {id:'sorites',title:'O Monte de Areia',body:'Um grão não faz um monte. Adicionar um grão a um não-monte não cria um monte. Logo nenhum número de grãos faz um monte.',categoria:'LÓGICA',author:'Eubúlides de Mileto (séc. IV a.C.)',dica:'A lógica fuzzy trata predicados vagos com valores de verdade entre 0 e 1.',status:'debate',date:'-0400-01-01'},
+  {id:'liar',title:'O Paradoxo do Mentiroso',body:'Esta afirmação é falsa. Se verdadeira, é falsa. Se falsa, é verdadeira.',categoria:'LÓGICA',author:'Epiménides de Creta (séc. VI a.C.)',dica:'Gödel formalizou esta auto-referência. A afirmação pode não ter valor de verdade.',status:'resist',date:'-0600-01-01'},
+  {id:'fermi',title:'O Paradoxo de Fermi',body:'Biliões de estrelas, potencialmente biliões de planetas habitáveis. Onde está toda a gente?',categoria:'FÍSICA',author:'Enrico Fermi (1950)',dica:'Considera o Filtro Grande, a hipótese do Planetário, ou que vida usa tecnologia irreconhecível.',status:'open',date:'1950-01-01'},
+  {id:'schro',title:'O Gato de Schrödinger',body:'Um gato está simultaneamente vivo e morto dentro de uma caixa com mecanismo quântico, até ser observado.',categoria:'FÍSICA',author:'Erwin Schrödinger (1935)',dica:'Interpretação de Copenhaga vs muitos mundos. O que conta como observação?',status:'debate',date:'1935-01-01'},
+  {id:'trolley',title:'O Problema do Trolley',body:'Puxas a alavanca para matar 1 em vez de 5? E se tivesses de empurrar uma pessoa?',categoria:'ÉTICA',author:'Philippa Foot (1967)',dica:'Utilitarismo vs deontologia kantiana. O resultado é igual mas a acção é diferente.',status:'debate',date:'1967-01-01'},
+  {id:'boltzmann',title:'O Cérebro de Boltzmann',body:'Flutuações de entropia podem criar consciência com memórias falsas. Tens certeza que não és uma?',categoria:'FÍSICA',author:'Ludwig Boltzmann (1895)',dica:'A probabilidade é não nula. Se as tuas memórias são indistinguíveis de reais, podes confiar nelas?',status:'open',date:'1895-01-01'},
+  {id:'halting',title:'O Problema da Paragem',body:'É possível determinar se um programa termina ou corre para sempre? Turing provou que não para todos os casos.',categoria:'MATEMÁTICA',author:'Alan Turing (1936)',dica:'Turing usou auto-referência: supõe que tal algoritmo existe e chega a contradição.',status:'resist',date:'1936-01-01'},
+  {id:'russell',title:'O Paradoxo de Russell',body:'Seja R o conjunto de todos os conjuntos que não se contêm a si mesmos. R contém-se a si mesmo?',categoria:'MATEMÁTICA',author:'Bertrand Russell (1901)',dica:'Russell resolveu com a Teoria dos Tipos. O sistema de Frege colapsou.',status:'resist',date:'1901-01-01'},
+  {id:'godel',title:'Os Teoremas de Gödel',body:'Qualquer sistema formal suficientemente poderoso contém verdades não demonstráveis dentro do próprio sistema.',categoria:'MATEMÁTICA',author:'Kurt Gödel (1931)',dica:'Gödel construiu uma afirmação que diz de si mesma: não posso ser provada.',status:'resist',date:'1931-01-01'},
+  {id:'sim',title:'O Argumento da Simulação',body:'Se simulações indistinguíveis são possíveis e civilizações avançadas as criam, é mais provável sermos simulados.',categoria:'EXISTENCIAL',author:'Nick Bostrom (2003)',dica:'Uma de três: civilizações não chegam lá, não querem, ou vivemos numa simulação.',status:'open',date:'2003-01-01'},
+  {id:'mary',title:'O Conhecimento de Mary',body:'Mary sabe tudo sobre física da cor mas nunca viu vermelho. Quando vê, aprende algo novo?',categoria:'EXISTENCIAL',author:'Frank Jackson (1982)',dica:'Qualia pode ser reduzida a física? Fisicalismo vs dualismo de propriedades.',status:'debate',date:'1982-01-01'},
+  {id:'chinese',title:'A Sala Chinesa',body:'Um homem segue regras para responder em chinês sem entender. A sala entende chinês?',categoria:'EXISTENCIAL',author:'John Searle (1980)',dica:'Sintaxe não é semântica. Contra: a sala no seu todo pode entender.',status:'debate',date:'1980-01-01'},
+  {id:'fermi2',title:'O Ajuste Fino do Universo',body:'As constantes físicas parecem ajustadas com precisão extraordinária para permitir vida. Porquê?',categoria:'FÍSICA',author:'Brandon Carter (1974)',dica:'Três saídas: multiverso, design, ou Princípio Antrópico.',status:'debate',date:'1974-01-01'},
+  {id:'bootstrap',title:'O Paradoxo Bootstrap',body:'Um viajante traz um livro do futuro ao passado. O livro existe sem jamais ter sido escrito.',categoria:'FÍSICA',author:'Robert Heinlein / Física Teórica (1941)',dica:'Causalidade circular pode ser matematicamente consistente.',status:'open',date:'1941-01-01'},
+  {id:'newcomb',title:'O Paradoxo de Newcomb',body:'Caixa A: 1000€ sempre. Caixa B: 1M€ só se escolheres apenas B. Um ser infalível previu a tua escolha. Escolhes as duas ou só B?',categoria:'LÓGICA',author:'William Newcomb / Robert Nozick (1969)',dica:'Dominância diz ambas. Evidencialismo diz só B. Ambas têm argumentos sólidos.',status:'debate',date:'1969-01-01'},
+  {id:'euthyphro',title:'O Dilema de Eutífron',body:'Os deuses amam o piedoso porque é piedoso, ou é piedoso porque os deuses o amam?',categoria:'ÉTICA',author:'Platão (380 a.C.)',dica:'Se a segunda, moralidade é arbitrária. Se a primeira, existe moralidade independente dos deuses.',status:'resist',date:'-0380-01-01'},
+  {id:'parfit',title:'O Paradoxo da Teleportação',body:'Teleportação desintegra e reconstrói átomo por átomo. A cópia és tu? O original morreu?',categoria:'EXISTENCIAL',author:'Derek Parfit (1984)',dica:'Parfit: o que importa não é identidade mas continuidade psicológica.',status:'open',date:'1984-01-01'},
+  {id:'goodman',title:'O Paradoxo Grue',body:'Define grue = verde antes de 3000, azul depois. Esmeraldas são grue. Porque induzimos que serão verdes?',categoria:'LÓGICA',author:'Nelson Goodman (1955)',dica:'Predicados projectáveis vs não-projectáveis. A indução não tem justificação a priori.',status:'open',date:'1955-01-01'},
+  {id:'sleeping',title:'A Bela Adormecida',body:'Adormece e acorda 1 ou 2 vezes conforme moeda. Quando acorda, qual a probabilidade de cara?',categoria:'MATEMÁTICA',author:'Arnold Zuboff (1990)',dica:'Halfers: 1/2. Thirders: 1/3. Ambas as posições têm argumentos sólidos.',status:'debate',date:'1990-01-01'},
+  {id:'leibniz',title:'O Princípio da Razão Suficiente',body:'Tudo tem uma razão para existir. Mas qual é a razão para a existência do universo? E a razão dessa razão?',categoria:'EXISTENCIAL',author:'Gottfried Leibniz (1714)',dica:'Leibniz usou Deus como razão suficiente. Mas isso abre a mesma questão sobre Deus.',status:'resist',date:'1714-01-01'},
+];
+const DB={
+  g:(k,d='[]')=>JSON.parse(localStorage.getItem('dph_'+k)||d),
+  s:(k,v)=>localStorage.setItem('dph_'+k,JSON.stringify(v)),
+  entries:()=>DB.g('entries'),se:v=>DB.s('entries',v),
+  diary:()=>DB.g('diary'),sd:v=>DB.s('diary',v),
+  curio:()=>DB.g('curio'),sc:v=>DB.s('curio',v),
+  proj:()=>DB.g('proj'),sp:v=>DB.s('proj',v),
+  gal:()=>DB.g('gal'),sg:v=>DB.s('gal',v),
+  paradoxos:()=>DB.g('paradoxos'),spx:v=>DB.s('paradoxos',v),
+  livros:()=>DB.g('livros'),sl:v=>DB.s('livros',v),
+  notes:()=>DB.g('notes','{}'),sn:v=>DB.s('notes',v),
+  msgs:()=>DB.g('msgs','{}'),sm:v=>DB.s('msgs',v),
+  posts:()=>DB.g('posts'),spo:v=>DB.s('posts',v),
+  votes:()=>DB.g('votes','{}'),sv:v=>DB.s('votes',v),
+  likes:()=>DB.g('likes','{}'),slk:v=>DB.s('likes',v),
+  anime:()=>DB.g('anime'),san:v=>DB.s('anime',v),
+  seti:()=>DB.g('seti'),sst:v=>DB.s('seti',v),
+  hipoteses:()=>DB.g('hipoteses'),shi:v=>DB.s('hipoteses',v),
+  heresias:()=>DB.g('heresias'),she:v=>DB.s('heresias',v),
+  oraculo:()=>DB.g('oraculo'),sor:v=>DB.s('oraculo',v),
+  linguagem:()=>DB.g('linguagem'),sln:v=>DB.s('linguagem',v),
+  legacy:()=>DB.g('legacy','{}'),slg:v=>DB.s('legacy',v),
+  missions:()=>{const t=today(),s=DB.g('missions','{}');return s.date===t?s:{date:t,done:[]}},
+  sms:v=>DB.s('missions',v),
+};
+const today=()=>new Date().toISOString().slice(0,10);
+const nowT=()=>new Date().toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+const uid=()=>Math.random().toString(36).slice(2,10);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const sumSt=e=>e.reduce((s,x)=>s+(x.stars||0),0);
+const catSt=(id,e=DB.entries())=>e.filter(x=>x.cat===id).reduce((s,x)=>s+(x.stars||0),0);
+function streak(){const e=DB.entries();if(!e.length)return 0;const days=[...new Set(e.map(x=>x.date))].sort().reverse();const t=today(),y=new Date(Date.now()-86400000).toISOString().slice(0,10);if(days[0]!==t&&days[0]!==y)return 0;let s=1;for(let i=0;i<days.length-1;i++){if(new Date(days[i])-new Date(days[i+1])===86400000)s++;else break}return s;}
+function lvl(stars,base=42){let l=1,n=base,c=stars;while(c>=n){c-=n;l++;n=Math.floor(n*1.3)}return{l,c,n};}
+function shade(h,p){const n=parseInt(h.replace('#',''),16),t=p<0?0:255,a=Math.abs(p);const R=n>>16,G=(n>>8)&0xFF,B=n&0xFF;return'#'+(0x1000000+(Math.round((t-R)*a/100)+R)*0x10000+(Math.round((t-G)*a/100)+G)*0x100+(Math.round((t-B)*a/100)+B)).toString(16).slice(1);}
+function sciNot(n){const e=Math.floor(Math.log10(n));return`${(n/10**e).toFixed(2)}×10<sup>${e}</sup>`;}
+// GALAXY
+const can=document.getElementById('galaxy'),gctx=can.getContext('2d');
+let W,H,stars=[],nebula=[],planets=[],gtime=0;
+function resize(){W=can.width=innerWidth;H=can.height=innerHeight;mkStars();mkPlanets();}
+window.addEventListener('resize',resize);
+function mkStars(){stars=[];for(let i=0;i<380;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.2,a:Math.random(),sp:Math.random()*.009+.002,ph:Math.random()*Math.PI*2});nebula=[];const cols=['rgba(123,63,228,','rgba(0,229,204,','rgba(201,168,76,','rgba(255,107,157,','rgba(68,136,255,'];for(let i=0;i<8;i++)nebula.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*240+80,col:cols[i%5],a:Math.random()*.05+.018});}
+function mkPlanets(){document.querySelectorAll('.plabel,.mlabel').forEach(el=>el.remove());planets=[];const cx=W/2,cy=H/2;planets.push({sun:true,x:cx,y:cy});const orR=[W*.10,W*.16,W*.22,W*.285,W*.145,W*.195,W*.255,W*.315,W*.365,W*.125,W*.185,W*.245,W*.205,W*.175];const spd=[.00072,.00051,.00041,.00031,.00056,.00043,.00033,.00024,.00019,.00077,.00053,.00036,.00046,.00062];CATS.forEach((cat,i)=>{const angle=((2*Math.PI)/CATS.length)*i+(i%2===0?0:Math.PI/CATS.length);const activity=catSt(cat.id)/100;const oR=(orR[i]||W*.15)*(1-activity*.12);const p={cat,angle,speed:spd[i]*(1+activity*.25),orbitR:oR,cx,cy,r:cat.size/2+(activity*3),x:0,y:0,moons:[]};p.x=cx+Math.cos(angle)*p.orbitR;p.y=cy+Math.sin(angle)*p.orbitR;planets.push(p);const lbl=document.createElement('div');lbl.className='plabel';lbl.id='pl-'+cat.id;lbl.style.color=cat.color;lbl.innerHTML=`<div class="porb" style="width:${p.r*2}px;height:${p.r*2}px;background:radial-gradient(circle at 35% 35%,${shade(cat.color,22)},${shade(cat.color,-45)});box-shadow:0 0 14px ${cat.color}55,0 0 28px ${cat.color}25">${cat.icon}</div><div class="pname">${cat.name.toUpperCase()}</div><div class="plvl" id="plvl-${cat.id}">✦ 0</div>`;lbl.onclick=e=>{e.stopPropagation();openPlanet(cat,lbl);};lbl.onmouseenter=()=>showMoons(cat.id,true);lbl.onmouseleave=()=>showMoons(cat.id,false);document.getElementById('gview').appendChild(lbl);(cat.moons||[]).forEach((moon,mi)=>{const ml=document.createElement('div');ml.className='mlabel';ml.id=`mn-${cat.id}-${mi}`;ml.innerHTML=`<div class="morb" style="width:15px;height:15px;background:rgba(255,255,255,.07);border:1px solid ${cat.color}40">${moon.i}</div><div class="mname">${moon.n}</div>`;ml.onclick=e=>{e.stopPropagation();openPlanet(cat,lbl,moon.n);};document.getElementById('gview').appendChild(ml);p.moons.push({data:moon,angle:mi*(2*Math.PI/(cat.moons.length)),r:p.r+18+mi*9,el:ml});});});}
+function showMoons(catId,show){const p=planets.find(x=>!x.sun&&x.cat.id===catId);if(p)p.moons.forEach(m=>m.el.classList.toggle('vis',show));}
+function drawGalaxy(){gctx.clearRect(0,0,W,H);nebula.forEach(n=>{const g=gctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);g.addColorStop(0,n.col+(n.a*1.3)+')');g.addColorStop(1,n.col+'0)');gctx.fillStyle=g;gctx.beginPath();gctx.arc(n.x,n.y,n.r,0,Math.PI*2);gctx.fill();});stars.forEach(s=>{const al=s.a*(.45+.55*Math.sin(gtime*s.sp*60+s.ph));gctx.beginPath();gctx.arc(s.x,s.y,s.r,0,Math.PI*2);gctx.fillStyle=`rgba(232,232,244,${al})`;gctx.fill();});planets.filter(p=>!p.sun).forEach(p=>{gctx.beginPath();gctx.arc(p.cx,p.cy,p.orbitR,0,Math.PI*2);const act=catSt(p.cat.id)/100;gctx.strokeStyle=`rgba(255,255,255,${.03+act*.05})`;gctx.lineWidth=1+act;gctx.stroke();});const sun=planets[0];const sg=gctx.createRadialGradient(sun.x,sun.y,0,sun.x,sun.y,50);sg.addColorStop(0,'rgba(201,168,76,.95)');sg.addColorStop(.4,'rgba(201,168,76,.3)');sg.addColorStop(1,'rgba(201,168,76,0)');gctx.fillStyle=sg;gctx.beginPath();gctx.arc(sun.x,sun.y,50,0,Math.PI*2);gctx.fill();const ps=24+Math.sin(gtime*.05)*7;gctx.beginPath();gctx.arc(sun.x,sun.y,ps,0,Math.PI*2);gctx.strokeStyle='rgba(201,168,76,.55)';gctx.lineWidth=2;gctx.stroke();planets.filter(p=>!p.sun&&catSt(p.cat.id)>20).forEach(p=>{gctx.beginPath();gctx.moveTo(sun.x,sun.y);gctx.lineTo(p.x,p.y);gctx.strokeStyle=`${p.cat.color}10`;gctx.lineWidth=.5;gctx.stroke();});}
+function updatePlanets(){const entries=DB.entries();planets.filter(p=>!p.sun).forEach(p=>{const act=catSt(p.cat.id,entries)/50;p.angle+=p.speed*(1+act*.2);p.x=p.cx+Math.cos(p.angle)*p.orbitR;p.y=p.cy+Math.sin(p.angle)*p.orbitR;const el=document.getElementById('pl-'+p.cat.id);if(el){el.style.left=p.x+'px';el.style.top=p.y+'px';}const lve=document.getElementById('plvl-'+p.cat.id);if(lve){lve.textContent='✦ '+catSt(p.cat.id,entries);}p.moons.forEach(m=>{m.angle+=p.speed*1.9;const mx=p.x+Math.cos(m.angle)*m.r,my=p.y+Math.sin(m.angle)*m.r;if(m.el){m.el.style.left=mx+'px';m.el.style.top=my+'px';}});});}
+function loop(){gtime++;drawGalaxy();updatePlanets();requestAnimationFrame(loop);}
+// NAV
+let panelOn=false,curCat=null,curSpecial=null;
+function goHome(){document.getElementById('panel').classList.remove('on');panelOn=false;curCat=null;curSpecial=null;document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));}
+function navigate(name,fn){const ld=document.getElementById('load'),lf=document.getElementById('loadFill');document.getElementById('loadName').textContent=name||'CARREGANDO';lf.style.transition='none';lf.style.width='0';ld.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>{lf.style.transition='width .55s cubic-bezier(.4,0,.2,1)';lf.style.width='100%';}));setTimeout(()=>{fn();ld.classList.remove('on');lf.style.transition='none';lf.style.width='0';},720);}
+function showPanel(){document.getElementById('panel').classList.add('on');panelOn=true;}
+function openPlanet(cat,_,moonFocus){navigate(cat.name.toUpperCase(),()=>{curCat=cat;curSpecial=null;showPanel();document.getElementById('pIco').textContent=cat.icon;document.getElementById('pNm').textContent=cat.name.toUpperCase();document.getElementById('pNm').style.color=cat.color;document.getElementById('pTg').textContent=cat.tag;const e=DB.entries(),st=catSt(cat.id,e);document.getElementById('pSt').textContent=st+' ✦';document.getElementById('pSt').style.color=cat.color;const{c,n}=lvl(st);setTimeout(()=>{document.getElementById('pPF').style.width=Math.min(100,c/n*100)+'%';document.getElementById('pPF').style.background=cat.color;},80);buildTabs(cat,moonFocus?'social':'sessoes');});}
+const SPECIALS={diario:{icon:'📓',name:'DIÁRIO',tag:'Escreve, publica, descobre'},curiosidades:{icon:'💡',name:'CURIOSIDADES',tag:'O que te surpreendeu hoje?'},projectos:{icon:'🧬',name:'PROJECTOS',tag:'Em desenvolvimento, ideias, concluídos'},missoes:{icon:'⚔️',name:'MISSÕES DO DIA',tag:'As tuas missões de hoje'},galeria:{icon:'✨',name:'GALERIA',tag:'Os teus melhores insights'},paradoxos:{icon:'🌀',name:'PARADOXOS',tag:'Questões que resistem ao tempo'},livros:{icon:'📚',name:'CLUBE DO LIVRO',tag:'Leitura profunda e debate'},civilizacao:{icon:'🌍',name:'CIVILIZAÇÃO',tag:'O índice colectivo'},heresias:{icon:'⚡',name:'HERESIAS CIENTÍFICAS',tag:'Ideias radicais que desafiam o consenso'},oraculo:{icon:'🔮',name:'ORÁCULO COLECTIVO',tag:'Previsões sobre ciência e medicina'},linguagem:{icon:'🗣',name:'LINGUAGEM PARALLAX',tag:'Os termos que só existem aqui'},seti:{icon:'📡',name:'PROTOCOLO SETI',tag:'Sinais anómalos em quarentena'},hipoteses:{icon:'🔬',name:'HIPÓTESES',tag:'Regista, testa, confirma'},ferramentas:{icon:'🧰',name:'FERRAMENTAS NERD',tag:'20 ferramentas ultra-avançadas'},legado:{icon:'🏛',name:'LEGADO',tag:'O que deixas para trás'},};
+function go(type){const meta=SPECIALS[type];if(!meta)return;navigate(meta.name,()=>{curSpecial=type;curCat=null;showPanel();document.getElementById('pIco').textContent=meta.icon;document.getElementById('pNm').textContent=meta.name;document.getElementById('pNm').style.color='var(--gold)';document.getElementById('pTg').textContent=meta.tag;document.getElementById('pSt').textContent='';document.getElementById('pPF').style.width='0';document.getElementById('pTabs').innerHTML='';const body=document.getElementById('pBody');body.className='pbody';body.style.display='block';const renders={diario:renderDiario,curiosidades:renderCurio,projectos:()=>renderProj(body,null),missoes:renderMissoes,galeria:renderGaleria,paradoxos:renderParadoxos,livros:renderLivros,civilizacao:renderCiv,heresias:renderHeresias,oraculo:renderOraculo,linguagem:renderLinguagem,seti:renderSeti,hipoteses:renderHipoteses,ferramentas:renderFerramentas,legado:renderLegado};if(renders[type])renders[type](body);});}
+// TABS
+function buildTabs(cat,activeTab){const tabs=[{id:'sessoes',l:'📊 Sessões'},{id:'notas',l:'📝 Notas'},{id:'social',l:'💬 Social'},{id:'conquistas',l:'🏆 Conquistas'}];if(['medicina','investigacao'].includes(cat.id))tabs.splice(2,0,{id:'projectos',l:'🧬 Projectos'});if(cat.id==='anime')tabs.splice(1,0,{id:'anime_lib',l:'📺 Biblioteca'},{id:'debates',l:'⚔️ Debates'});if(cat.id==='desenho')tabs.splice(1,0,{id:'atelie',l:'🎨 Ateliê'});document.getElementById('pTabs').innerHTML=tabs.map(t=>`<button class="ptab${t.id===activeTab?' on':''}" onclick="swTab('${cat.id}','${t.id}',this)">${t.l}</button>`).join('');renderTab(cat,activeTab);}
+function swTab(catId,tab,btn){const cat=CATS.find(c=>c.id===catId);document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));btn.classList.add('on');renderTab(cat,tab);}
+function renderTab(cat,tab){const body=document.getElementById('pBody');body.className='pbody';const e=DB.entries(),ce=e.filter(x=>x.cat===cat.id).reverse(),col=cat.color;
+if(tab==='sessoes'){body.classList.add('g2');const cal=[];for(let i=27;i>=0;i--){const d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);cal.push({d,has:e.some(x=>x.cat===cat.id&&x.date===d),isT:d===today()});}const{l}=lvl(catSt(cat.id,e));body.innerHTML=`<div class="card full"><div class="ct">Registar sessão</div><div class="row"><div class="fld"><label>Estrelas (1-10)</label><input type="number" id="dSt" value="3" min="1" max="10" style="width:72px"></div><div class="fld grow"><label>Nota</label><input type="text" id="dNote" placeholder="O que fizeste?"></div><button class="btn bg" onclick="logSes('${cat.id}')" style="background:linear-gradient(135deg,${col},${shade(col,-40)})">✦ Registar</button></div></div><div class="card"><div class="ct">Stats</div><div class="s4"><div class="sbox"><div class="n" style="color:${col}">${l}</div><div class="l">NÍVEL</div></div><div class="sbox"><div class="n" style="color:${col}">${ce.length}</div><div class="l">SESSÕES</div></div><div class="sbox"><div class="n" style="color:${col}">${catSt(cat.id,e)}</div><div class="l">✦ ESTRELAS</div></div><div class="sbox"><div class="n" style="color:${col}">${ce.filter(x=>x.date===today()).length}</div><div class="l">HOJE</div></div></div></div><div class="card"><div class="ct">28 dias</div><div class="mcal">${cal.map(d=>`<div class="cd${d.has?' has':''}${d.isT?' tod':''}" style="${d.has?'background:'+col+';':''}" title="${d.d}">${new Date(d.d+'T12:00').getDate()}</div>`).join('')}</div></div><div class="card full"><div class="ct">Histórico</div>${ce.length?ce.slice(0,10).map(x=>`<div class="hi"><div class="hib"><div class="hit">${x.note||'<i style="color:var(--muted)">Sem nota</i>'}</div><div class="him">${x.date}</div></div><div class="badge" style="color:${col};background:${col}18">+${x.stars} ✦</div></div>`).join(''):'<div class="empty"><span>📭</span>Sem sessões.</div>'}</div>`;}
+else if(tab==='notas'){body.classList.add('g2');const notes=DB.notes(),cn=(notes[cat.id]||[]).reverse();body.innerHTML=`<div class="card full"><div class="ct">Nova nota</div><div style="display:flex;flex-direction:column;gap:9px"><div class="fld"><label>Nota rápida</label><textarea id="nT" placeholder="Insight, fórmula, link..." style="min-height:56px"></textarea></div><button class="btn bg" onclick="addNote('${cat.id}')" style="align-self:flex-end;background:linear-gradient(135deg,${col},${shade(col,-40)})">+ Guardar</button></div></div><div class="card full"><div class="ct">Notas (${cn.length})</div>${cn.length?cn.slice(0,20).map(n=>`<div class="note-item" style="border-left-color:${col}"><p>${esc(n.text)}</p><div class="note-meta">${n.date} · ${n.time}</div></div>`).join(''):'<div class="empty"><span>📝</span>Sem notas.</div>'}</div>`;}
+else if(tab==='social'){body.style.display='block';renderSocial(body,cat);}
+else if(tab==='conquistas'){body.classList.add('g2');const cons=[{i:'🌱',n:'Primeiro passo',d:'1ª sessão',ok:ce.length>=1},{i:'✦',n:'50 estrelas',d:'50 estrelas acendidas',ok:catSt(cat.id,e)>=50},{i:'💫',n:'Constelação',d:'42 estrelas = 1 constelação',ok:catSt(cat.id,e)>=42},{i:'🔥',n:'7 dias',d:'7 dias de streak',ok:streak()>=7},{i:'🏆',n:'Mestre',d:'20 sessões',ok:ce.length>=20},{i:'🌍',n:'Omnívoro',d:'8+ planetas activos',ok:new Set(e.map(x=>x.cat)).size>=8}];body.innerHTML=`<div class="card full"><div class="ct">Conquistas</div>${cons.map(m=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:16px;width:24px;text-align:center">${m.i}</div><div style="flex:1"><div style="font-size:11px;font-weight:500">${m.n}</div><div style="font-size:9px;color:var(--muted)">${m.d}</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;${m.ok?'background:rgba(0,229,204,.1);color:var(--teal)':'background:rgba(255,255,255,.04);color:var(--muted)'}">${m.ok?'✓ OBTIDA':'BLOQUEADA'}</div></div>`).join('')}</div>`;}
+else if(tab==='projectos'){body.style.display='block';renderProj(body,cat.id);}
+else if(tab==='anime_lib'){body.style.display='block';renderAnimeLib(body);}
+else if(tab==='debates'){body.style.display='block';renderDebates(body);}
+else if(tab==='atelie'){body.style.display='block';renderAtelie(body);}
+}
+function logSes(catId){const st=Math.min(10,Math.max(1,parseInt(document.getElementById('dSt').value)||3));const note=document.getElementById('dNote').value.trim();const e=DB.entries();e.push({cat:catId,stars:st,note,date:today(),ts:Date.now()});DB.se(e);document.getElementById('dNote').value='';document.getElementById('dSt').value=3;const cat=CATS.find(c=>c.id===catId);toast(`${cat.icon} +${st} ✦ · ${cat.name}`);updateHUD();const ns=catSt(catId,e);document.getElementById('pSt').textContent=ns+' ✦';const{c,n}=lvl(ns);setTimeout(()=>{document.getElementById('pPF').style.width=Math.min(100,c/n*100)+'%';},50);renderTab(cat,'sessoes');}
+function addNote(catId){const t=document.getElementById('nT').value.trim();if(!t)return;const notes=DB.notes();if(!notes[catId])notes[catId]=[];notes[catId].push({id:uid(),text:t,date:today(),time:nowT()});DB.sn(notes);document.getElementById('nT').value='';toast('📝 Nota guardada');renderTab(CATS.find(c=>c.id===catId),'notas');}
+// SOCIAL
+function likesHTML(id){const lk=DB.likes();return`<div class="like-row">${[['heart','❤️'],['rocket','🚀'],['fire','🔥'],['brain','🧠']].map(([t,em])=>`<button class="lbtn ${t}" onclick="like('${id}','${t}',this)">${em} <span id="lk-${id}-${t}">${lk[id+'_'+t]||0}</span></button>`).join('')}</div>`;}
+function like(id,type,btn){const lk=DB.likes();const key=id+'_'+type;lk[key]=(lk[key]||0)+1;DB.slk(lk);btn.classList.add('on');const el=document.getElementById('lk-'+id+'-'+type);if(el)el.textContent=lk[key];setTimeout(()=>btn.classList.remove('on'),600);}
+function vote(id,dir){const v=DB.votes();v[id]=(v[id]||0)+dir;DB.sv(v);const el=document.getElementById('v-'+id);if(el)el.textContent=v[id];}
+function renderMsgs(msgs,col){if(!msgs.length)return`<div style="text-align:center;color:var(--muted);font-size:11px;padding:18px">Sem mensagens.</div>`;return msgs.slice(-30).map(m=>`<div class="msg"><div class="msg-av" style="background:linear-gradient(135deg,${col},${shade(col,-30)})">${(m.user||'A')[0]}</div><div class="msg-body"><div class="msg-user" style="color:${col}">${esc(m.user||'Dr. Parallax Habu')}</div><div class="msg-text">${esc(m.text)}</div><div class="msg-time">${m.time||''}</div></div></div>`).join('');}
+function renderSocial(body,cat){const msgs=DB.msgs(),posts=DB.posts().filter(p=>p.cat===cat.id),votes=DB.votes();body.innerHTML=`<div style="display:grid;grid-template-columns:190px 1fr;gap:16px;height:calc(100vh - 210px)"><div><div class="ct" style="margin-bottom:9px">Canais</div><div class="chan-list">${['geral','debate','recursos','off-topic'].map((ch,i)=>`<div class="chan-item${i===0?' on':''}" id="ch-${ch}" onclick="swChan('${cat.id}','${ch}',this)"><span class="chan-hash">#</span><span class="chan-name">${ch}</span><span class="chan-ct">${(msgs[cat.id+'_'+ch]||[]).length}</span></div>`).join('')}</div><div class="ct" style="margin:14px 0 9px">Posts</div><button class="btn bgh bsm" onclick="openM('post','${cat.id}')">+ Novo post</button><div style="margin-top:9px;max-height:200px;overflow-y:auto">${posts.slice(-5).reverse().map(p=>{const v=votes[p.id]||0;return`<div class="post-card" style="padding:9px;margin-bottom:5px"><div class="votes"><button class="vbtn" onclick="vote('${p.id}',1)">▲</button><div class="vnum" id="v-${p.id}">${v}</div><button class="vbtn" onclick="vote('${p.id}',-1)">▼</button></div><div><div class="post-title" style="font-size:11px">${esc(p.title)}</div><div class="post-meta">${p.date}</div></div></div>`;}).join('')}</div></div><div style="display:flex;flex-direction:column"><div class="msg-area" id="msgArea">${renderMsgs(msgs[cat.id+'_geral']||[],cat.color)}</div><div class="msg-row"><input class="msg-input" id="msgIn" placeholder="Escreve..." onkeydown="if(event.key==='Enter')sendMsg('${cat.id}','geral')"><button class="btn bg" onclick="sendMsg('${cat.id}','geral')" style="background:linear-gradient(135deg,${cat.color},${shade(cat.color,-40)})">→</button></div></div></div>`;setTimeout(()=>{const a=document.getElementById('msgArea');if(a)a.scrollTop=a.scrollHeight;},50);}
+function swChan(catId,chan,btn){document.querySelectorAll('.chan-item').forEach(c=>c.classList.remove('on'));btn.classList.add('on');const msgs=DB.msgs(),cat=CATS.find(c=>c.id===catId);document.getElementById('msgArea').innerHTML=renderMsgs(msgs[catId+'_'+chan]||[],cat.color);const a=document.getElementById('msgArea');if(a)a.scrollTop=a.scrollHeight;const mi=document.getElementById('msgIn');if(mi){mi.onkeydown=e=>{if(e.key==='Enter')sendMsg(catId,chan);};mi.nextElementSibling.onclick=()=>sendMsg(catId,chan);}}
+function sendMsg(catId,chan){const input=document.getElementById('msgIn');const text=input.value.trim();if(!text)return;const msgs=DB.msgs();const key=catId+'_'+chan;if(!msgs[key])msgs[key]=[];msgs[key].push({id:uid(),user:'Dr. Parallax Habu',text,time:nowT(),date:today()});DB.sm(msgs);input.value='';const cat=CATS.find(c=>c.id===catId);document.getElementById('msgArea').innerHTML=renderMsgs(msgs[key],cat.color);const a=document.getElementById('msgArea');if(a)a.scrollTop=a.scrollHeight;}
+// PROJECTS
+function renderProj(body,filter){const projs=DB.proj(),fil=filter?projs.filter(p=>!p.area||p.area===filter):projs;const sc={dev:'sdev',done:'sdone',idea:'sidea',pause:'spause'},sl={dev:'EM DESENVOLVIMENTO',done:'CONCLUÍDO',idea:'IDEIA',pause:'PAUSADO'};body.innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn bg bsm" onclick="openM('proj')">+ Novo projecto</button></div><div class="pj-grid">${fil.length?fil.reverse().map(p=>`<div class="pj-card"><div class="pst ${sc[p.status]||'sidea'}">● ${sl[p.status]||'IDEIA'}</div><div class="pj-title">${esc(p.title)}</div><div class="pj-desc">${esc(p.desc||'')}</div><div class="pj-tags">${(p.tags||'').split(',').filter(Boolean).map(t=>`<span class="ptg">${esc(t.trim())}</span>`).join('')}</div>${p.link?`<a class="pj-link" href="${esc(p.link)}" target="_blank">🔗 ${esc(p.link)}</a>`:''}<div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);margin-top:8px">${p.date}</div></div>`).join(''):'<div class="empty" style="grid-column:1/-1"><span>📋</span>Sem projectos.</div>'}</div>`;}
+// ANIME
+function renderAnimeLib(body){const a=DB.anime(),sc={watching:'A VER',done:'VISTO',plan:'PLANEADO',dropped:'ABANDONADO'},cc={watching:'var(--teal)',done:'var(--gold)',plan:'var(--muted)',dropped:'var(--red)'};body.innerHTML=`<button class="btn ba bsm" onclick="openM('anime')" style="margin-bottom:14px">+ Adicionar anime</button>${a.length?a.reverse().map(x=>`<div class="anime-card"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:13px;font-weight:600;color:var(--anime)">${esc(x.title)}</div><div style="font-size:9px;color:var(--muted);margin:2px 0">${esc(x.genre||'')} · ${x.episodes||'?'} eps</div><div style="font-size:9px;font-family:'JetBrains Mono',monospace;color:${cc[x.status]||'var(--muted)'}">● ${sc[x.status]||'?'}</div></div><div style="display:flex;gap:2px">${[1,2,3,4,5].map(i=>`<button class="star-btn${(x.rating||0)>=i?' lit':''}">★</button>`).join('')}</div></div>${x.note?`<div style="font-size:10px;color:rgba(232,232,244,.6);margin-top:7px;line-height:1.4">${esc(x.note)}</div>`:''}<div style="margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)">${x.date}</div>${likesHTML(x.id)}</div>`).join(''):'<div class="empty"><span>⛩</span>Sem animes.</div>'}`;  }
+function renderDebates(body){const posts=DB.posts().filter(p=>p.cat==='anime'&&p.isDebate),votes=DB.votes();body.innerHTML=`<button class="btn ba bsm" onclick="openM('debate')" style="margin-bottom:14px">⚔️ Novo debate</button>${posts.length?posts.reverse().map(p=>`<div class="debate-card"><div class="debate-title">${esc(p.title)}</div><div class="debate-sides"><div class="debate-side side-a"><div style="font-size:9px;color:var(--anime);font-weight:600;margin-bottom:4px">LADO A</div><div style="font-size:10px">${esc(p.sideA||'')}</div></div><div class="debate-side side-b"><div style="font-size:9px;color:var(--teal);font-weight:600;margin-bottom:4px">LADO B</div><div style="font-size:10px">${esc(p.sideB||'')}</div></div></div><div style="display:flex;gap:8px;margin-top:9px"><button class="btn ba bsm" onclick="vote('${p.id}_a',1)">▲ A (${votes[p.id+'_a']||0})</button><button class="btn bt bsm" onclick="vote('${p.id}_b',1)">▲ B (${votes[p.id+'_b']||0})</button></div>${likesHTML(p.id)}</div>`).join(''):'<div class="empty"><span>⚔️</span>Sem debates ainda.</div>'}`;  }
+// ATELIÊ
+function renderAtelie(body){body.innerHTML=`<div class="draw-toolbar">${['#E8E8F4','#C9A84C','#00E5CC','#7B3FE4','#E8453C','#FF6B9D','#A0C878','#FF9F43','#4488FF','#00C896','#FF0000','#0000FF'].map((c,i)=>`<div class="draw-color${i===0?' on':''}" style="background:${c}" onclick="setDCol('${c}',this)"></div>`).join('')}<input type="range" class="draw-size" id="dSize" min="1" max="30" value="4"><button class="dtbtn on" id="dPen" onclick="setDTool('pen',this)">✏ Pincel</button><button class="dtbtn" id="dErase" onclick="setDTool('erase',this)">🧹 Apagar</button><button class="dtbtn" onclick="clearDraw()">🗑 Limpar</button><button class="dtbtn" onclick="saveDraw()">💾 Guardar</button></div><canvas id="drawCanvas" width="900" height="480"></canvas><div id="drawGal" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:12px"></div>`;initDraw();}
+function initDraw(){const c=document.getElementById('drawCanvas'),ctx=c.getContext('2d');let drawing=false,tool='pen',color='#E8E8F4';function pos(e){const r=c.getBoundingClientRect(),sx=c.width/r.width,sy=c.height/r.height;if(e.touches)return{x:(e.touches[0].clientX-r.left)*sx,y:(e.touches[0].clientY-r.top)*sy};return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};}c.onmousedown=c.ontouchstart=e=>{e.preventDefault();drawing=true;const{x,y}=pos(e);ctx.beginPath();ctx.moveTo(x,y);};c.onmousemove=c.ontouchmove=e=>{e.preventDefault();if(!drawing)return;const{x,y}=pos(e);const size=parseInt(document.getElementById('dSize').value)||4;if(tool==='erase'){ctx.globalCompositeOperation='destination-out';ctx.lineWidth=size*3;}else{ctx.globalCompositeOperation='source-over';ctx.strokeStyle=color;ctx.lineWidth=size;}ctx.lineCap='round';ctx.lineJoin='round';ctx.lineTo(x,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);};c.onmouseup=c.ontouchend=()=>{drawing=false;ctx.beginPath();};c.onmouseleave=()=>{drawing=false;};window.setDCol=(c2,el)=>{color=c2;tool='pen';document.querySelectorAll('.draw-color').forEach(x=>x.classList.remove('on'));el.classList.add('on');document.getElementById('dPen').classList.add('on');document.getElementById('dErase').classList.remove('on');};window.setDTool=(t,btn)=>{tool=t;document.querySelectorAll('.dtbtn').forEach(x=>x.classList.remove('on'));btn.classList.add('on');};window.clearDraw=()=>{ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,c.width,c.height);};window.saveDraw=()=>{const data=c.toDataURL();const g=DB.gal();g.push({id:uid(),emoji:'🎨',title:'Desenho '+today(),body:'Ateliê Cósmico',data,categoria:'ARTE',date:today()});DB.sg(g);toast('🎨 Guardado na galeria!');loadDrawGal();};loadDrawGal();}
+function loadDrawGal(){const el=document.getElementById('drawGal');if(!el)return;const drawings=DB.gal().filter(g=>g.data).reverse().slice(0,12);el.innerHTML=drawings.length?drawings.map(d=>`<div style="border:1px solid var(--border);border-radius:7px;overflow:hidden"><img src="${d.data}" style="width:100%;display:block" title="${d.title}"></div>`).join(''):'<div style="font-size:10px;color:var(--muted)">Os teus desenhos aparecerão aqui.</div>';}
+// SPECIALS
+function renderDiario(body){const e=DB.diary().reverse();body.innerHTML=`<div style="max-width:700px;margin:0 auto"><button class="btn bg" onclick="openM('diario')" style="margin-bottom:16px">+ Nova entrada</button>${e.length?e.map(x=>`<div class="pub-card"><div class="pub-hd"><div class="pub-title">${esc(x.title)}</div><div class="pub-type">${x.type||'DESCOBERTA'}</div></div><div class="pub-meta"><span>✍ ${esc(x.author||'Dr. Parallax Habu')}</span><span>📍 ${esc(x.local||'Maputo')}</span><span>🕐 ${x.hora||''}</span><span>📅 ${x.date}</span></div><div class="pub-body">${esc(x.body||'')}</div>${likesHTML(x.id)}</div>`).join(''):'<div class="empty"><span>📓</span>Sem entradas.</div>'}</div>`;}
+function renderCurio(body){const e=DB.curio().reverse();body.innerHTML=`<div style="max-width:660px;margin:0 auto"><button class="btn bg" onclick="openM('curio')" style="margin-bottom:16px">+ Nova curiosidade</button>${e.length?e.map((c,i)=>`<div class="curio-item"><div class="curio-n">${String(e.length-i).padStart(2,'0')}</div><div class="curio-body"><div class="curio-text">${esc(c.text)}</div><div class="curio-cat">${c.categoria||'GERAL'} · ${c.date}</div></div></div>`).join(''):'<div class="empty"><span>💡</span>Sem curiosidades.</div>'}</div>`;}
+function renderMissoes(body){const ms=DB.missions();body.innerHTML=`<div style="max-width:640px;margin:0 auto"><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:14px;letter-spacing:.1em">MISSÕES DE ${today().split('-').reverse().join('/')} · ${ms.done.length}/${MISSIONS.length} COMPLETAS</div><div class="card">${MISSIONS.map(m=>{const done=ms.done.includes(m.id);const cat=CATS.find(c=>c.id===m.cat);return`<div class="miss-item"><div class="mcheck${done?' done':''}" onclick="toggleM('${m.id}')">${done?'✓':''}</div><div class="miss-b"><div class="miss-t${done?' done':''}">${m.title}</div><div class="miss-cat">${cat?cat.icon+' '+cat.name:m.cat}</div></div><div class="miss-stars">+${m.stars} ✦</div></div>`;}).join('')}</div><div style="margin-top:12px;padding:12px;background:rgba(0,229,204,.04);border:1px solid rgba(0,229,204,.1);border-radius:9px;font-size:11px;color:var(--muted)">💫 Completa todas para ganhar +20 ✦ bónus</div></div>`;}
+function toggleM(id){const ms=DB.missions();const idx=ms.done.indexOf(id);if(idx>=0){ms.done.splice(idx,1);}else{ms.done.push(id);const m=MISSIONS.find(x=>x.id===id);if(m){const e=DB.entries();e.push({cat:m.cat,stars:m.stars,note:'Missão: '+m.title,date:today(),ts:Date.now()});DB.se(e);toast(`⚔️ +${m.stars} ✦ · Missão completa!`);updateHUD();}if(ms.done.length===MISSIONS.length){const e=DB.entries();e.push({cat:'investigacao',stars:20,note:'Bónus: todas as missões!',date:today(),ts:Date.now()});DB.se(e);toast('🏆 +20 ✦ BÓNUS!');updateHUD();}}DB.sms(ms);renderMissoes(document.getElementById('pBody'));}
+function renderGaleria(body){const items=DB.gal().filter(g=>!g.data).reverse();body.innerHTML=`<button class="btn bg" onclick="openM('gal')" style="margin-bottom:14px">+ Nova descoberta</button><div class="gal-grid">${items.length?items.map(d=>`<div class="disc-card"><div class="disc-emoji">${d.emoji||'✨'}</div><div class="disc-title">${esc(d.title)}</div><div class="disc-body">${esc(d.body||'')}</div><div class="disc-date">${d.categoria||'GERAL'} · ${d.date}</div>${likesHTML(d.id)}</div>`).join(''):'<div class="empty" style="grid-column:1/-1"><span>✨</span>Sem descobertas.</div>'}</div>`;}
+function renderParadoxos(body){const userP=DB.paradoxos(),userIds=new Set(userP.map(p=>p.id)),all=[...BASE_PARAS.filter(p=>!userIds.has(p.id)),...userP],votes=DB.votes();const awards={'🌀':'Medalha do Vórtice','🪐':'Anel de Saturno','⚫':'Buraco Negro','🌟':'Supernova','👁':'Olho de Deus','☄':'Cometa','🔮':'Cristal de Planck'};const sc={open:'ps-open',debate:'ps-debate',resist:'ps-resist',eternal:'ps-eternal'},sl={open:'ABERTO',debate:'EM DEBATE',resist:'RESISTENTE',eternal:'✦ ETERNO ✦'};body.innerHTML=`<div style="display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;align-items:center"><button class="btn bv" onclick="openM('paradoxo')">🌀 Submeter paradoxo</button><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto">${all.length} PARADOXOS · ${all.filter(p=>p.status==='eternal').length} ETERNOS</div></div>${all.map(p=>{const v=votes[p.id]||0;const daysO=Math.max(0,Math.floor((Date.now()-new Date(p.date.startsWith('-')?'0001-01-01':p.date.replace(/^0+/,'')||'0001-01-01').getTime())/86400000));const status=daysO>=365?'eternal':daysO>=90?'resist':daysO>=30?'debate':'open';const aw=[];if(status==='eternal')aw.push('🌟','👁');if(daysO>=90)aw.push('🪐');return`<div class="para-card${status==='eternal'?' eternal':''}"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px"><div class="pst-badge ${sc[status]||'ps-open'}">● ${sl[status]||'ABERTO'}</div><div style="display:flex;gap:4px;align-items:center"><button class="vbtn" onclick="vote('${p.id}',1)">▲</button><span class="vnum" id="v-${p.id}">${v}</span><button class="vbtn" onclick="vote('${p.id}',-1)">▼</button></div></div><div class="para-title">${esc(p.title)}</div><div class="para-body">${esc(p.body||'')}</div>${p.dica?`<div class="para-hint">💡 ${esc(p.dica)}</div>`:''}<div class="para-meta">Por ${esc(p.author||'Anónimo')} · ${p.categoria||''} · ${daysO} dias</div><div class="para-awards">${aw.map(a=>`<span title="${awards[a]||''}">${a}</span>`).join('')}</div>${likesHTML(p.id)}</div>`;}).join('')}`;}
+function renderLivros(body){const livros=DB.livros(),sc={reading:'A LER',done:'LIDO',want:'QUERO LER',club:'CLUBE DO MÊS'},cc={reading:'var(--teal)',done:'var(--gold)',want:'var(--muted)',club:'var(--violet)'};body.innerHTML=`<div style="display:flex;gap:8px;margin-bottom:14px;align-items:center"><button class="btn bg" onclick="openM('livro')">+ Adicionar livro</button><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">${livros.length} LIVRO${livros.length!==1?'S':''}</div></div>${livros.length?livros.reverse().map(l=>`<div class="book-card"><div class="book-spine" style="background:${cc[l.status]||'var(--gold)'}"></div><div class="book-info"><div class="book-title">${esc(l.title)}</div><div class="book-author">${esc(l.author||'')} · ${esc(l.genre||'')}</div><div class="book-prog-bar"><div class="book-prog-fill" style="width:${l.progress||0}%;background:${cc[l.status]||'var(--gold)'}"></div></div><div class="book-prog-lbl">${l.progress||0}% · ${sc[l.status]||'?'}</div>${l.quote?`<div style="font-size:10px;font-style:italic;color:var(--gold);margin-top:6px;border-left:2px solid var(--gold);padding-left:7px">${esc(l.quote)}</div>`:''}<div style="margin-top:7px">${likesHTML(l.id)}</div></div></div>`).join(''):'<div class="empty"><span>📚</span>Sem livros.</div>'}`;  }
+function renderCiv(body){const e=DB.entries(),d=DB.diary(),p=DB.paradoxos(),l=DB.livros();const total=sumSt(e),score=total+d.length*10+(p.length+BASE_PARAS.length)*5+l.length*5;const civLvl=Math.floor(score/500)+1,pct=(score%500)/500*100;const titles=['Explorador Primordial','Aprendiz Cósmico','Pensador Emergente','Cientista em Ascensão','Investigador Galáctico','Mestre das Dimensões','Arquitecto do Conhecimento','Oráculo da Civilização','Singularidade Viva','Divindade do Cosmos'];const t=titles[Math.min(civLvl-1,titles.length-1)];body.innerHTML=`<div style="max-width:700px;margin:0 auto"><div class="legacy-card" style="margin-bottom:18px"><div style="font-family:'Orbitron',monospace;font-size:10px;color:var(--gold);letter-spacing:.2em;margin-bottom:7px">ÍNDICE DE CIVILIZAÇÃO</div><div style="font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:600;color:var(--gold);line-height:1">${score}</div><div class="civ-bar"><div class="civ-fill" style="width:${pct}%"></div></div><div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--gold);margin-top:10px;padding:3px 11px;border:1px solid var(--gold);border-radius:20px;display:inline-block">${t}</div><div style="font-size:10px;color:var(--muted);margin-top:4px">Nível ${civLvl} · ${500-(score%500)} para o próximo</div></div><div class="g3" style="margin-bottom:16px">${[['✦',total,'ESTRELAS'],['📓',d.length,'PUBLICAÇÕES'],['🌀',BASE_PARAS.length+p.length,'PARADOXOS'],['📚',l.length,'LIVROS'],['🔥',streak(),'STREAK'],['🧬',new Set(e.map(x=>x.cat)).size,'DIMENSÕES']].map(([ic,v,lb])=>`<div class="sbox"><div class="n" style="color:var(--gold)">${ic} ${v}</div><div class="l">${lb}</div></div>`).join('')}</div><div class="card"><div class="ct">Escala de Kardashev Pessoal</div><div style="position:relative;height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:${Math.min(100,score/50)}%;background:linear-gradient(90deg,var(--gold),var(--teal));border-radius:4px;transition:width 1.2s ease"></div></div><div style="font-size:10px;color:var(--muted)">De consumidor de informação → produtor → transformador de civilização</div></div></div>`;}
+function renderHeresias(body){const h=DB.heresias(),votes=DB.votes();body.innerHTML=`<div style="display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;align-items:center"><button class="btn br" onclick="openM('heresia')">⚡ Nova heresia científica</button><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">90 dias sem refutação = Heresia Legítima</div></div>${h.length?h.reverse().map(x=>{const days=Math.floor((Date.now()-new Date(x.date).getTime())/86400000),leg=days>=90;return`<div class="heresy-card${leg?' legitimate':''}"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="heresy-title">${esc(x.title)}</div>${leg?'<div style="font-family:\'JetBrains Mono\',monospace;font-size:8px;color:var(--gold);padding:2px 7px;border-radius:4px;background:rgba(201,168,76,.1)">✓ HERESIA LEGÍTIMA</div>':`<div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)">${days}/90 dias</div>`}</div><div style="font-size:11px;color:rgba(232,232,244,.65);line-height:1.5;margin:7px 0">${esc(x.body||'')}</div><div style="display:flex;gap:7px"><button class="vbtn" onclick="vote('${x.id}',1)" style="font-size:11px;border:1px solid var(--border);border-radius:5px;padding:2px 8px">▲ ${votes[x.id]||0}</button></div>${likesHTML(x.id)}</div>`;}).join(''):'<div class="empty"><span>⚡</span>Sem heresias. Sê corajoso.</div>'}`;  }
+function renderOraculo(body){const o=DB.oraculo();body.innerHTML=`<div style="display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;align-items:center"><button class="btn bv" onclick="openM('oraculo')">🔮 Nova previsão</button><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">O sistema rastreia quem acerta</div></div>${o.length?o.reverse().map(x=>{const past=x.deadline&&new Date(x.deadline)<new Date();return`<div class="oracle-card${past&&x.correct?' correct':''}"><div class="oracle-pred">${esc(x.title)}</div><div class="oracle-deadline">📅 ${x.deadline||'indefinido'} · ${esc(x.domain||'CIÊNCIA')}</div>${x.arg?`<div style="font-size:10px;color:rgba(232,232,244,.6);margin-top:5px;line-height:1.4">${esc(x.arg)}</div>`:''}<div style="margin-top:9px;display:flex;gap:7px">${past?`<button class="btn bt bsm" onclick="markOracle('${x.id}',true)">✓ Acertei</button><button class="btn br bsm" onclick="markOracle('${x.id}',false)">✗ Errei</button>`:''}</div>${likesHTML(x.id)}</div>`;}).join(''):'<div class="empty"><span>🔮</span>Sem previsões ainda.</div>'}`;  }
+function markOracle(id,correct){const o=DB.oraculo();const x=o.find(x=>x.id===id);if(x){x.correct=correct;DB.sor(o);renderOraculo(document.getElementById('pBody'));toast(correct?'✓ Previsão correcta!':'✗ Registado como errado');}}
+function renderLinguagem(body){const l=DB.linguagem();body.innerHTML=`<div style="max-width:660px;margin:0 auto"><button class="btn bg" onclick="openM('linguagem')" style="margin-bottom:14px">+ Novo termo</button><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:12px">A língua que emerge aqui e só existe aqui.</div>${l.length?l.reverse().map(x=>`<div class="lang-item"><div class="lang-term">${esc(x.term)}</div><div class="lang-def">${esc(x.def)}</div><div class="lang-date">${x.date}</div></div>`).join(''):'<div class="empty"><span>🗣</span>Nenhum termo ainda. A língua começa aqui.</div>'}</div>`;}
+function renderSeti(body){const s=DB.seti();body.innerHTML=`<div style="display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap;align-items:center"><button class="btn bt" onclick="openM('seti')">📡 Registar sinal</button><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">Descobertas anómalas em quarentena</div></div>${s.length?s.reverse().map(x=>`<div class="seti-card${x.classified?' classified':''}"><div class="seti-signal">SINAL #${x.id.slice(0,6).toUpperCase()} · ${x.classified?'CLASSIFICADO':'EM QUARENTENA'}</div><div class="seti-body">${esc(x.body)}</div><div style="display:flex;align-items:center;gap:8px;font-size:9px;color:var(--muted)"><span>Evidência:</span><div class="seti-dots">${[1,2,3,4,5].map(i=>`<div class="seti-dot${(x.strength||0)>=i?' on':''}"></div>`).join('')}</div><button class="btn bt bsm" onclick="classifySeti('${x.id}')">Classificar</button></div></div>`).join(''):'<div class="empty"><span>📡</span>Nenhum sinal detectado.</div>'}`;  }
+function classifySeti(id){const s=DB.seti();const x=s.find(x=>x.id===id);if(x){x.classified=true;DB.sst(s);renderSeti(document.getElementById('pBody'));toast('📡 Sinal classificado!');}}
+function renderHipoteses(body){const h=DB.hipoteses();body.innerHTML=`<button class="btn bg" onclick="openM('hipotese')" style="margin-bottom:14px">🔬 Nova hipótese</button>${h.length?h.reverse().map(x=>{const forE=(x.evidencias||[]).filter(e=>e.type==='for').length,agE=(x.evidencias||[]).filter(e=>e.type==='against').length,total=Math.max(1,forE+agE);return`<div class="hyp-card"><div class="hyp-h">${esc(x.title)}</div><div class="hyp-h0">H₀: ${esc(x.h0||'Não há efeito')}</div><div class="hyp-ev"><div class="ev-bar"><div class="ev-label">A FAVOR (${forE})</div><div class="ev-track"><div class="ev-fill-for" style="width:${forE/total*100}%"></div></div></div><div class="ev-bar"><div class="ev-label">CONTRA (${agE})</div><div class="ev-track"><div class="ev-fill-ag" style="width:${agE/total*100}%"></div></div></div></div><div style="margin-top:9px;display:flex;gap:6px"><button class="btn bt bsm" onclick="addEvidence('${x.id}','for')">+ A favor</button><button class="btn br bsm" onclick="addEvidence('${x.id}','against')">+ Contra</button></div></div>`;}).join(''):'<div class="empty"><span>🔬</span>Sem hipóteses.</div>'}`;  }
+function addEvidence(id,type){const text=prompt(type==='for'?'Evidência a favor:':'Evidência contra:');if(!text)return;const h=DB.hipoteses();const x=h.find(x=>x.id===id);if(x){if(!x.evidencias)x.evidencias=[];x.evidencias.push({type,text,date:today()});DB.shi(h);renderHipoteses(document.getElementById('pBody'));toast(type==='for'?'✓ Evidência a favor':'✗ Evidência contra');}}
+function renderFerramentas(body){
+  const e=DB.entries(),totalSt=sumSt(e);
+  const k=Math.min(3,totalSt/500);
+  const kLabel=k<0.2?'Observador Terrestre':k<0.5?'Explorador Lunar':k<1?'Viajante Solar':k<1.5?'Habitante Galáctico':k<2?'Arquitecto de Estrelas':'Entidade Cósmica';
+
+  const COSMOS_FACTS=[
+    {cat:'⚫ Buracos Negros',title:'Singtech do Caos',fact:'O buraco negro M87*, fotografado em 2019, tem 6,5 mil milhões de massas solares. A sua sombra mede 40 mil milhões de km — maior que todo o Sistema Solar.',src:'Event Horizon Telescope, 2019',xp:7},
+    {cat:'🌌 Galáxias',title:'Colisão Inevitável',fact:'A Via Láctea e Andrómeda colidirão em 4,5 mil milhões de anos. As estrelas são tão esparsas que quase nenhuma se chocará — mas o céu nocturno ficará radicalmente diferente.',src:'NASA / Hubble Space Telescope',xp:5},
+    {cat:'🔭 Cosmologia',title:'Expansão Acelerada',fact:'Em 1998, Perlmutter e Riess descobriram que o universo se expande cada vez mais depressa. A causa chama-se Energia Escura — compõe 68% do universo e não sabemos o que é.',src:'Nobel de Física 2011',xp:9},
+    {cat:'⚡ Estrelas de Neutrões',title:'Objecto mais Denso',fact:'Uma colher de chá de estrela de neutrões pesa 10 mil milhões de toneladas. Giram até 716 vezes por segundo — pulsares — emitindo feixes de rádio com precisão de relógio atómico.',src:'Observatório de Arecibo / NRAO',xp:8},
+    {cat:'🪐 Exoplanetas',title:'Kepler-442b',fact:'A 1.200 anos-luz daqui existe um planeta com 60% de probabilidade de ter condições habitáveis. A NASA detectou mais de 5.500 exoplanetas confirmados desde 1992.',src:'NASA Kepler Mission / Exoplanet Archive',xp:6},
+    {cat:'🌊 Ondas Gravitacionais',title:'Eco do Cosmos',fact:'Em 2015, o LIGO detectou a fusão de dois buracos negros a 1,3 mil milhões de anos-luz. A distorção no espaço-tempo detectada foi de 1/1000 do diâmetro de um protão.',src:'LIGO Scientific Collaboration, 2015',xp:10},
+    {cat:'☀️ O Nosso Sol',title:'Reactor Nuclear Vivo',fact:'O Sol converte 4 milhões de toneladas de massa em energia por segundo via fusão nuclear. Em cada segundo, o Sol produz mais energia do que toda a humanidade consumiu na história.',src:'Solar Dynamics Observatory, NASA',xp:5},
+    {cat:'🧬 Astroquímica',title:'Somos Poeira de Estrelas',fact:'O carbono, azoto, oxigénio e ferro no teu corpo foram forjados em supernovas. O ouro e o platino vêm de fusões de estrelas de neutrões. Literalmente somos restos de explosões estelares.',src:'Nuclear Astrophysics / Carl Sagan',xp:7},
+    {cat:'🌠 Supernovas',title:'Morte que Cria Vida',fact:'A supernova SN 1987A foi visível a olho nu durante meses — a última observada na Via Láctea (numa galáxia satélite). Libertou mais energia em 10 segundos do que o Sol em 10 mil milhões de anos.',src:'ESO / NASA / IUE',xp:8},
+    {cat:'🔬 Física Quântica',title:'Entrelaçamento',fact:'Dois fotões entrelaçados influenciam-se instantaneamente a qualquer distância — Einstein chamou-lhe "acção fantasmagórica à distância". O Bell Test de 2015 provou que não há variáveis ocultas.',src:'Delft University / Nature, 2015',xp:9},
+    {cat:'🛸 Matéria Escura',title:'O Invisível que Estrutura Tudo',fact:'85% da matéria do universo é escura — não emite luz, não absorve luz, não reflecte luz. Sabemos que existe porque galáxias giram rápido demais para a matéria visível as manter unidas.',src:'Vera Rubin / Fritz Zwicky',xp:9},
+    {cat:'💥 Big Bang',title:'Primeiro Milionésimo de Segundo',fact:'Nos primeiros 10⁻⁴³ segundos (Tempo de Planck), a física actual não descreve o universo. A toda a matéria e energia do cosmos coube num ponto menor que um protão.',src:'ESA / Planck Collaboration',xp:10},
+  ];
+
+  const CHALLENGES=[
+    {id:'ch1',title:'Estimar o Tamanho de M87*',desc:'O buraco negro M87* tem uma massa de 6,5 × 10⁹ M☉. O raio de Schwarzschild é r = 2GM/c². Calcula o raio em km.',hint:'G = 6.674×10⁻¹¹ · M☉ = 1.989×10³⁰ kg · c = 3×10⁸ m/s',answer:'~19 mil milhões de km',stars:12,cat:'MATEMÁTICA'},
+    {id:'ch2',title:'Quanto tempo vive o Sol?',desc:'O Sol converte 4×10⁶ toneladas/s em energia. Tem 2×10³⁰ kg e usa ~10% da sua massa em fusão. Por quanto tempo mais pode fazer fusão?',hint:'Energia disponível = 0.1 × M☉ × c²  /  taxa de consumo',answer:'~5 mil milhões de anos',stars:10,cat:'ASTROFÍSICA'},
+    {id:'ch3',title:'Velocidade de Escape de uma Estrela de Neutrões',desc:'Uma estrela de neutrões tem M = 1,4 M☉ e raio de 10 km. Calcula a velocidade de escape.',hint:'v_esc = √(2GM/r) — compara com c = 3×10⁸ m/s',answer:'~0,65c ≈ 195.000 km/s',stars:11,cat:'FÍSICA'},
+    {id:'ch4',title:'Paradoxo de Fermi — O Silêncio',desc:'Com 400 mil milhões de estrelas na Via Láctea, e assumindo 1% com planetas habitáveis, e 1% com vida inteligente, quantas civilizações deveriam existir?',hint:'Equação de Drake: N = R* × fp × ne × fl × fi × fc × L',answer:'Dezenas de milhares — o silêncio é o paradoxo',stars:8,cat:'EXISTENCIAL'},
+    {id:'ch5',title:'Ondas Gravitacionais — A Distorção',desc:'O LIGO detectou uma variação de 10⁻¹⁸ m (1/1000 protão) num braço de 4 km. Qual a strain h = ΔL/L?',hint:'h = ΔL / L',answer:'h ≈ 2,5×10⁻²²',stars:13,cat:'FÍSICA'},
+  ];
+
+  const completed=JSON.parse(localStorage.getItem('dph_challenges')||'[]');
+  const totalChStars=completed.reduce((s,id)=>{const c=CHALLENGES.find(x=>x.id===id);return s+(c?c.stars:0);},0);
+  const factIdx=Math.floor((Date.now()/86400000))%COSMOS_FACTS.length;
+  const todayFact=COSMOS_FACTS[factIdx];
+  const seenFacts=JSON.parse(localStorage.getItem('dph_seen_facts')||'[]');
+
+  body.innerHTML=`
+  <style>
+    .lab-section{margin-bottom:28px}
+    .lab-title{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+    .lab-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+    .fact-card{background:linear-gradient(135deg,rgba(123,63,228,.08),rgba(0,229,204,.04));border:1px solid rgba(123,63,228,.3);border-radius:14px;padding:22px;margin-bottom:10px;position:relative;overflow:hidden}
+    .fact-card::before{content:'';position:absolute;top:0;right:0;width:120px;height:120px;background:radial-gradient(circle,rgba(123,63,228,.12),transparent);pointer-events:none}
+    .fact-cat{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--violet);letter-spacing:.15em;margin-bottom:8px}
+    .fact-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--white);margin-bottom:10px;line-height:1.3}
+    .fact-text{font-size:12px;color:rgba(232,232,244,.8);line-height:1.7;margin-bottom:12px}
+    .fact-src{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.08em}
+    .fact-xp{position:absolute;top:18px;right:18px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:4px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--gold)}
+    .fact-nav{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+    .fact-nav-btn{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-size:10px;padding:5px 12px;transition:all .2s}
+    .fact-nav-btn:hover{border-color:var(--gold);color:var(--gold)}
+    .fact-nav-btn.primary{background:linear-gradient(135deg,var(--violet),#3d1090);border:none;color:#fff;font-weight:600}
+    .challenge-card{background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:10px;transition:border-color .2s}
+    .challenge-card:hover{border-color:rgba(201,168,76,.3)}
+    .challenge-card.done{border-color:rgba(0,200,150,.3);background:rgba(0,200,150,.03)}
+    .ch-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+    .ch-title{font-size:13px;font-weight:600;color:var(--white);flex:1}
+    .ch-stars{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);flex-shrink:0;margin-left:10px}
+    .ch-cat{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.1em;margin-bottom:6px}
+    .ch-desc{font-size:11px;color:rgba(232,232,244,.7);line-height:1.5;margin-bottom:8px}
+    .ch-hint{font-size:10px;color:var(--teal);background:rgba(0,229,204,.05);border-left:2px solid var(--teal);padding:5px 9px;border-radius:0 6px 6px 0;margin-bottom:10px;display:none}
+    .ch-hint.show{display:block;animation:fadeUp .3s ease}
+    .ch-answer{font-size:11px;color:var(--gold);background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:7px;padding:9px 12px;margin-top:8px;display:none;animation:fadeUp .3s ease}
+    .ch-answer.show{display:block}
+    .ch-done-badge{font-family:'JetBrains Mono',monospace;font-size:9px;color:#00C896;background:rgba(0,200,150,.1);border:1px solid rgba(0,200,150,.3);border-radius:4px;padding:2px 8px}
+    .kscale{display:flex;align-items:center;gap:12px;padding:12px;background:rgba(0,0,0,.3);border-radius:10px;margin-bottom:8px;transition:all .2s}
+    .kscale:hover{background:rgba(123,63,228,.06)}
+    .kscale-ico{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+    .kscale-info{flex:1}
+    .kscale-name{font-size:12px;font-weight:600;color:var(--white)}
+    .kscale-desc{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4}
+    .kscale-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px}
+    .kscale-fill{height:100%;border-radius:2px}
+    .kscale-val{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--violet);flex-shrink:0}
+    .cosmos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+    .cosmos-mini{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:9px;padding:12px;cursor:pointer;transition:all .2s;text-align:center}
+    .cosmos-mini:hover{border-color:var(--violet);transform:translateY(-2px)}
+    .cosmos-mini.seen{border-color:rgba(0,200,150,.3);background:rgba(0,200,150,.03)}
+    .cosmos-mini-ico{font-size:22px;margin-bottom:5px}
+    .cosmos-mini-cat{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+    .cosmos-mini-title{font-size:10px;font-weight:600;color:var(--white);margin-top:2px;line-height:1.3}
+    #factDetail{background:linear-gradient(135deg,rgba(123,63,228,.08),rgba(0,229,204,.04));border:1px solid rgba(123,63,228,.25);border-radius:12px;padding:20px;margin-top:14px;display:none;animation:fadeUp .35s ease}
+    #factDetail.show{display:block}
+  </style>
+
+  <!-- KARDASHEV LIVE -->
+  <div class="lab-section">
+    <div class="lab-title">⚡ O Teu Índice de Kardashev</div>
+    <div style="background:linear-gradient(135deg,rgba(201,168,76,.06),rgba(123,63,228,.06));border:1px solid rgba(201,168,76,.2);border-radius:14px;padding:20px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:40px;font-weight:600;color:var(--gold);line-height:1">K = ${k.toFixed(4)}</div>
+          <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--violet);letter-spacing:.1em;margin-top:4px">${kLabel}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:var(--teal)">${totalSt} ✦</div>
+          <div style="font-size:9px;color:var(--muted);letter-spacing:.1em">ESTRELAS ACENDIDAS</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);margin-top:4px">${totalChStars} ✦ dos desafios</div>
+        </div>
+      </div>
+      <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px">
+        <div style="height:100%;width:${Math.min(100,k/2*100)}%;background:linear-gradient(90deg,#C9A84C,#00E5CC,#7B3FE4);border-radius:4px;transition:width 1.4s cubic-bezier(.4,0,.2,1)"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)">
+        <span>K=0 Primata</span><span>K=0.5 Explorador</span><span>K=1 Civilização</span><span>K=1.5 Galáctico</span><span>K=2 Entidade</span>
+      </div>
+    </div>
+    ${[
+      {ico:'🌱',lvl:'K < 0.3',name:'Observador Terrestre',desc:'Consome conhecimento. Lê, observa, absorve. A curiosidade é o motor.',req:'0 estrelas',fill:15,color:'#A0C878'},
+      {ico:'🌙',lvl:'K 0.3–0.6',name:'Explorador Lunar',desc:'Começa a sintetizar. Escreve, regista, conecta ideias de áreas diferentes.',req:'150 estrelas',fill:30,color:'#4488FF'},
+      {ico:'☀️',lvl:'K 0.6–1.0',name:'Viajante Solar',desc:'Produz conhecimento original. Publica, formula hipóteses, debate paradoxos.',req:'300 estrelas',fill:50,color:'#FFCC00'},
+      {ico:'🌌',lvl:'K 1.0–1.5',name:'Habitante Galáctico',desc:'O conhecimento é uma ferramenta de transformação. Colabora, inspira, cria sistemas.',req:'500 estrelas',fill:75,color:'#7B3FE4'},
+      {ico:'⚫',lvl:'K ≥ 1.5',name:'Arquitecto Cósmico',desc:'Fronteira do conhecimento humano. Descobre o que ainda não existe.',req:'750 estrelas',fill:100,color:'#C9A84C'},
+    ].map(s=>{const active=totalSt>=(parseInt(s.req)||0);return`<div class="kscale${active?'':' '}" style="${active?'border-left:3px solid '+s.color+';padding-left:12px':'border-left:3px solid var(--border);padding-left:12px;opacity:.5'}"><div style="display:flex;align-items:center;gap:10px"><div class="kscale-ico">${s.ico}</div><div class="kscale-info"><div class="kscale-name" style="${active?'color:'+s.color:''}">${s.name} <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">${s.lvl}</span></div><div class="kscale-desc">${s.desc}</div></div><div class="kscale-val">${s.req}</div></div></div>`;}).join('')}
+  </div>
+
+  <!-- DESCOBERTA DO DIA -->
+  <div class="lab-section">
+    <div class="lab-title">🔭 Descoberta do Dia</div>
+    <div class="fact-card">
+      <div class="fact-xp">+${todayFact.xp} ✦</div>
+      <div class="fact-cat">${todayFact.cat}</div>
+      <div class="fact-title">${todayFact.title}</div>
+      <div class="fact-text">${todayFact.fact}</div>
+      <div class="fact-src">Fonte: ${todayFact.src}</div>
+      <div class="fact-nav">
+        <button class="fact-nav-btn primary" onclick="claimFactXP('${todayFact.cat}',${todayFact.xp})">✦ Reclamar ${todayFact.xp} estrelas</button>
+        <button class="fact-nav-btn" onclick="showRandomFact()">🎲 Outra descoberta</button>
+      </div>
+    </div>
+    <div id="factDetail"></div>
+  </div>
+
+  <!-- ATLAS DO COSMOS -->
+  <div class="lab-section">
+    <div class="lab-title">🌌 Atlas do Cosmos</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Clica para explorar cada descoberta e ganhar estrelas. <span style="color:var(--gold)">${seenFacts.length}/${COSMOS_FACTS.length}</span> exploradas.</div>
+    <div class="cosmos-grid">
+      ${COSMOS_FACTS.map((f,i)=>{const seen=seenFacts.includes(i);return`<div class="cosmos-mini${seen?' seen':''}" onclick="exploreFact(${i})"><div class="cosmos-mini-ico">${seen?'✦':f.cat.split(' ')[0]}</div><div class="cosmos-mini-cat">${f.cat.split(' ').slice(1).join(' ')}</div><div class="cosmos-mini-title">${f.title}</div></div>`;}).join('')}
+    </div>
+  </div>
+
+  <!-- DESAFIOS CIENTÍFICOS -->
+  <div class="lab-section">
+    <div class="lab-title">⚔️ Desafios Científicos</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:var(--gold)">${completed.length}<span style="font-size:12px;color:var(--muted)">/${CHALLENGES.length}</span></div>
+      <div style="font-size:10px;color:var(--muted)">desafios completados · <span style="color:var(--gold)">${totalChStars} ✦</span> ganhos</div>
+    </div>
+    ${CHALLENGES.map(ch=>{const done=completed.includes(ch.id);return`<div class="challenge-card${done?' done':''}">
+      <div class="ch-header">
+        <div>
+          <div class="ch-cat">${ch.cat}</div>
+          <div class="ch-title">${ch.title}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:10px">${done?`<div class="ch-done-badge">✓ COMPLETO</div>`:`<div class="ch-stars">+${ch.stars} ✦</div>`}</div>
+      </div>
+      <div class="ch-desc">${ch.desc}</div>
+      ${!done?`
+        <div class="ch-hint" id="hint-${ch.id}">💡 Dica: ${ch.hint}</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="fact-nav-btn" onclick="toggleHint('${ch.id}')">💡 Ver dica</button>
+          <button class="fact-nav-btn" onclick="revealAnswer('${ch.id}')">👁 Revelar resposta</button>
+          <button class="fact-nav-btn primary" onclick="completeChallenge('${ch.id}',${ch.stars})">✦ Marcar como resolvido</button>
+        </div>
+        <div class="ch-answer" id="ans-${ch.id}">✓ Resposta: <strong>${ch.answer}</strong></div>
+      `:`<div style="font-size:11px;color:#00C896">✓ Resposta: <strong>${ch.answer}</strong></div>`}
+    </div>`;}).join('')}
+  </div>`;
+
+  // Store COSMOS_FACTS on window for access by handlers
+  window._COSMOS_FACTS=COSMOS_FACTS;
+}
+
+function claimFactXP(cat,xp){
+  const catMap={'⚫ Buracos Negros':'astro','🌌 Galáxias':'astro','🔭 Cosmologia':'astro','⚡ Estrelas de Neutrões':'astro','🪐 Exoplanetas':'astro','🌊 Ondas Gravitacionais':'fisica','☀️ O Nosso Sol':'astro','🧬 Astroquímica':'investigacao','🌠 Supernovas':'astro','🔬 Física Quântica':'mat','🛸 Matéria Escura':'astro','💥 Big Bang':'astro'};
+  const catId=catMap[cat]||'astro';
+  const ev=DB.entries();ev.push({cat:catId,stars:xp,note:'Descoberta do dia: '+cat,date:today(),ts:Date.now()});DB.se(ev);updateHUD();
+  toast(`✦ +${xp} estrelas! Descoberta registada.`);
+  const btn=document.querySelector('.fact-nav-btn.primary');if(btn){btn.textContent='✓ Já reclamado';btn.disabled=true;btn.style.opacity='.5';}
+}
+
+function showRandomFact(){
+  const facts=window._COSMOS_FACTS||[];if(!facts.length)return;
+  const f=facts[Math.floor(Math.random()*facts.length)];
+  const el=document.getElementById('factDetail');
+  el.innerHTML=`<div style="margin-bottom:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--violet)">${f.cat}</div><div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:8px">${f.title}</div><div style="font-size:11px;color:rgba(232,232,244,.8);line-height:1.7;margin-bottom:8px">${f.fact}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">Fonte: ${f.src}</div><button class="fact-nav-btn primary" onclick="claimFactXP('${f.cat}',${f.xp})" style="margin-top:10px">✦ Reclamar +${f.xp} estrelas</button>`;
+  el.classList.add('show');
+}
+
+function exploreFact(idx){
+  const facts=window._COSMOS_FACTS||[];const f=facts[idx];if(!f)return;
+  const seen=JSON.parse(localStorage.getItem('dph_seen_facts')||'[]');
+  const isNew=!seen.includes(idx);
+  if(isNew){seen.push(idx);localStorage.setItem('dph_seen_facts',JSON.stringify(seen));}
+  const el=document.getElementById('factDetail');
+  el.innerHTML=`<div style="margin-bottom:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--violet)">${f.cat}</div><div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:8px">${f.title}</div><div style="font-size:11px;color:rgba(232,232,244,.8);line-height:1.7;margin-bottom:8px">${f.fact}</div><div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)">Fonte: ${f.src}</div>${isNew?`<button class="fact-nav-btn primary" onclick="claimFactXP('${f.cat}',${f.xp});document.querySelector('.cosmos-mini:nth-child(${idx+1})').classList.add('seen')" style="margin-top:10px">✦ Reclamar +${f.xp} estrelas</button>`:`<div style="margin-top:8px;font-size:10px;color:#00C896">✓ Já exploraste esta descoberta</div>`}`;
+  el.classList.add('show');el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function toggleHint(id){const el=document.getElementById('hint-'+id);if(el)el.classList.toggle('show');}
+function revealAnswer(id){const el=document.getElementById('ans-'+id);if(el)el.classList.add('show');}
+function completeChallenge(id,stars){
+  const completed=JSON.parse(localStorage.getItem('dph_challenges')||'[]');
+  if(completed.includes(id))return;
+  completed.push(id);localStorage.setItem('dph_challenges',JSON.stringify(completed));
+  const ev=DB.entries();ev.push({cat:'astro',stars,note:'Desafio científico resolvido',date:today(),ts:Date.now()});DB.se(ev);updateHUD();
+  toast(`🏆 +${stars} ✦ Desafio completado!`);
+  renderFerramentas(document.getElementById('pBody'));
+}
+  const k=Math.min(3,totalSt/1000);
+  const kLvl=k<0.3?'Consumidor Primário':k<0.6?'Explorador Activo':k<1?'Produtor de Conhecimento':k<1.5?'Transformador Científico':k<2?'Arquitecto Civilizacional':'Singularidade Intelectual';
+  const kPct=Math.min(100,(k/2)*100);
+  const allNotes=Object.values(notes).flat();
+  const oldNotes=allNotes.filter(n=>new Date(n.date)<new Date(Date.now()-7*86400000));
+  const entropyPct=allNotes.length?Math.round(oldNotes.length/allNotes.length*100):0;
+  const words=diary.flatMap(x=>(x.body||'').split(/\s+/).filter(Boolean));
+  const unique=new Set(words.map(w=>w.toLowerCase())).size;
+  const richness=words.length?Math.round(unique/words.length*100):0;
+  const catActivity=CATS.map(c=>({c,st:catSt(c.id,e)})).sort((a,b)=>b.st-a.st);
+  const topCat=catActivity[0];
+  const lowCat=catActivity[catActivity.length-1];
+  const activeCats=Object.keys(notes).filter(k=>notes[k]&&notes[k].length>0);
+  const connPairs=activeCats.length>=2?`${CATS.find(x=>x.id===activeCats[0])?.name||activeCats[0]} ↔ ${CATS.find(x=>x.id===activeCats[1])?.name||activeCats[1]}`:'Regista notas em 2+ dimensões';
+
+  body.innerHTML=`
+  <style>
+    .ftool{background:rgba(0,0,0,.32);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;transition:border-color .2s}
+    .ftool:hover{border-color:rgba(123,63,228,.3)}
+    .ftool-hd{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .ftool-ico{font-size:26px;flex-shrink:0}
+    .ftool-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--violet);letter-spacing:.06em}
+    .ftool-sub{font-size:10px;color:var(--muted);margin-top:2px}
+    .fbar-wrap{margin:8px 0}
+    .fbar-label{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px}
+    .fbar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+    .fbar-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+    .ftag{display:inline-flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border-radius:4px;margin:2px}
+    .ftool-input{background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Space Grotesk',sans-serif;font-size:12px;padding:7px 11px;outline:none;transition:border-color .2s;width:100%}
+    .ftool-input:focus{border-color:var(--violet)}
+    .ftool-result{background:rgba(123,63,228,.06);border:1px solid rgba(123,63,228,.2);border-radius:8px;padding:12px;margin-top:10px;font-size:12px;line-height:1.6;display:none}
+    .ftool-result.show{display:block;animation:fadeUp .3s ease}
+    .ftool-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .ftool-stat{background:rgba(0,0,0,.3);border-radius:8px;padding:10px;text-align:center}
+    .ftool-stat .n{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:var(--violet)}
+    .ftool-stat .l{font-size:8px;color:var(--muted);letter-spacing:.08em;margin-top:2px}
+    .ftool-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+    .fcat-bar{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
+    .fcat-bar:last-child{border-bottom:none}
+    .fcat-name{font-size:10px;width:90px;flex-shrink:0;color:var(--muted)}
+    .fcat-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+    .fcat-fill{height:100%;border-radius:2px;transition:width 1s ease}
+    .fcat-val{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);width:30px;text-align:right;flex-shrink:0}
+    .deduction-tree{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:2;padding:10px;background:rgba(0,0,0,.3);border-radius:7px;margin-top:8px}
+  </style>
+
+  <!-- 1. KARDASHEV -->
+  <div class="ftool">
+    <div class="ftool-hd"><div class="ftool-ico">📈</div><div><div class="ftool-title">Índice de Kardashev Pessoal</div><div class="ftool-sub">Mede o teu crescimento intelectual em tempo real com base em toda a tua actividade</div></div></div>
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:42px;font-weight:600;color:var(--violet);line-height:1">${k.toFixed(4)}</div>
+      <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--gold);margin-top:4px;letter-spacing:.1em">${kLvl}</div>
+    </div>
+    <div class="fbar-wrap"><div class="fbar-label"><span>K=0 Consumidor</span><span>K=1 Produtor</span><span>K=2 Civilização</span></div><div class="fbar"><div class="fbar-fill" style="width:${kPct}%;background:linear-gradient(90deg,var(--gold),var(--teal),var(--violet))"></div></div></div>
+    <div class="ftool-grid">
+      <div class="ftool-stat"><div class="n" style="color:var(--gold)">${totalSt}</div><div class="l">✦ ESTRELAS ACENDIDAS</div></div>
+      <div class="ftool-stat"><div class="n" style="color:var(--teal)">${diary.length}</div><div class="l">PUBLICAÇÕES</div></div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.6">Para avançar de K=${k.toFixed(2)} para K=${(Math.ceil(k*10)/10).toFixed(1)} precisas de <span style="color:var(--violet)">${Math.max(0,Math.ceil((Math.ceil(k*10)/10)*1000)-totalSt)} estrelas</span> adicionais.</div>
+  </div>
+
+  <!-- 2. ANÁLISE DE ESCRITA -->
+  <div class="ftool">
+    <div class="ftool-hd"><div class="ftool-ico">🕵</div><div><div class="ftool-title">Análise de Escrita</div><div class="ftool-sub">Métricas do teu vocabulário, complexidade e evolução ao longo do tempo</div></div></div>
+    <div class="ftool-grid">
+      <div class="ftool-stat"><div class="n" style="color:var(--teal)">${words.length}</div><div class="l">PALAVRAS TOTAIS</div></div>
+      <div class="ftool-stat"><div class="n" style="color:var(--gold)">${unique}</div><div class="l">PALAVRAS ÚNICAS</div></div>
+      <div class="ftool-stat"><div class="n" style="color:var(--violet)">${richness}%</div><div class="l">RIQUEZA LEXICAL</div></div>
+      <div class="ftool-stat"><div class="n" style="color:var(--teal)">${diary.length}</div><div class="l">TEXTOS ESCRITOS</div></div>
+    </div>
+    <div class="fbar-wrap" style="margin-top:12px"><div class="fbar-label"><span>Riqueza lexical</span><span>${richness}%</span></div><div class="fbar"><div class="fbar-fill" style="width:${richness}%;background:linear-gradient(90deg,var(--teal),var(--violet))"></div></div></div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px">${richness>60?'✦ Vocabulário muito rico — estás a escrever com variedade e profundidade.':richness>35?'→ Vocabulário moderado — escreve mais para expandir o leque.':'⚠ Escreve mais no Diário para construir riqueza lexical.'}</div>
+  </div>
+
+  <!-- 3. ENTROPIA DE NOTAS -->
+  <div class="ftool">
+    <div class="ftool-hd"><div class="ftool-ico">🌡</div><div><div class="ftool-title">Entropia de Notas</div><div class="ftool-sub">Notas não revistas acumulam entropia — conhecimento que se está a dissolver</div></div></div>
+    <div class="fbar-wrap"><div class="fbar-label"><span>Entropia actual</span><span>${entropyPct}% das notas degradadas</span></div><div class="fbar"><div class="fbar-fill" style="width:${entropyPct}%;background:linear-gradient(90deg,var(--teal),var(--gold),var(--red))"></div></div></div>
+    <div class="ftool-grid">
+      <div class="ftool-stat"><div class="n" style="color:${entropyPct>50?'var(--red)':'var(--teal)'}">${oldNotes.length}</div><div class="l">NOTAS DEGRADADAS (+7d)</div></div>
+      <div class="ftool-stat"><div class="n" style="color:var(--teal)">${allNotes.length-oldNotes.length}</div><div class="l">NOTAS FRESCAS</div></div>
+    </div>
+    ${oldNotes.slice(0,4).map(n=>{const cat=Object.keys(notes).find(k=>(notes[k]||[]).some(x=>x.id===n.id));const c=CATS.find(x=>x.id===cat);return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:10px"><span style="color:var(--red);font-size:14px">⚡</span><span style="flex:1;color:var(--muted)">${esc(n.text.slice(0,60))}...</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)">${c?c.name:''}</span></div>`;}).join('')}
+    ${oldNotes.length>4?`<div style="font-size:10px;color:var(--muted);margin-top:6px">+${oldNotes.length-4} notas adicionais a degradar-se</div>`:''}
+  </div>
+
+  <!-- 4. DETECTOR DE VIÉS -->
+  <div class="ftool">
+    <div class="ftool-hd"><div class="ftool-ico">🔍</div><div><div class="ftool-title">Detector de Viés Cognitivo</div><div class="ftool-sub">A tua distribuição de atenção revela os teus vieses inconscientes</div></div></div>
+    <div style="margin-top:4px">${catActivity.slice(0,8).map(({c,st})=>{const maxSt=catActivity[0].st||1;return`<div class="fcat-bar"><div class="fcat-name">${c.icon} ${c.name}</div><div class="fcat-track"><div class="fcat-fill" style="width:${st/maxSt*100}%;background:${c.color}"></div></div><div class="fcat-val">${st}✦</div></div>`;}).join('')}</div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      ${topCat&&topCat.st>0?`<span class="ftag" style="background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.2)">⚠ Viés para ${topCat.c.name}</span>`:''}
+      ${lowCat&&lowCat.st===0?`<span class="ftag" style="background:rgba(232,69,60,.08);color:var(--red);border:1px solid rgba(232,69,60,.2)">Negliges ${lowCat.c.name}</span>`:''}
+      <span class="ftag" style="background:rgba(0,229,204,.08);color:var(--teal);border:1px solid rgba(0,229,204,.2)">${new Set(e.map(x=>x.cat)).size} dimensões activas</span>
+    </div>
+  </div>
+
+  <!-- 5. MOTOR DE INFERÊNCIA -->
+  <div class="ftool">
+    <div class="ftool-hd"><div class="ftool-ico">🔮</div><div><div class="ftool-title">Motor de Inferência</div><div class="ftool-sub">Detecta conexões latentes entre as tuas notas de categorias diferentes</div></div></div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Conexão detectada entre:</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--violet);text-align:center;padding:12px;background:rgba(123,63,228,.06);border-radius:8px;border:1px solid rgba(123,63,228,.15)">${connPairs}</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:8px">Baseado em ${activeCats.length} dimensões com notas activas. Adiciona notas em mais dimensões para descobrir mais conexões.</div>
+    <button onclick="inferMore()" style="margin-top:10px;background:rgba(123,63,228,.1);border:1px solid rgba(123,63,228,.3);border-radius:7px;color:var(--violet);cursor:pointer;font-size:11px;padding:5px 14px;transition:all .2s" onmouseover="this.style.background='rgba(123,63,228,.2)'" onmouseout="this.style.background='rgba(123,63,228,.1)'">🔮 Nova inferência aleatória</button>
+    <div id="inferResult" class="ftool-result"></div>
+  </div>
+
+  <!-- 6. MODO FEYNMAN -->
+  <div class="ftool">
+    <div class="ftool-hd"><div class="ftool-ico">🧠</div><div><div class="ftool-title">Modo Feynman</div><div class="ftool-sub">Se não consegues explicar simplesmente, ainda não percebeste. Escreve como se a criança de 12 anos.</div></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input class="ftool-input" id="feynConcept" placeholder="Conceito a explicar (ex: CRISPR, Buraco Negro, Teorema de Gödel...)">
+      <textarea class="ftool-input" id="feynText" rows="3" placeholder="A tua explicação simples, sem termos técnicos..." style="resize:none"></textarea>
+      <button onclick="runFeynman()" style="background:linear-gradient(135deg,var(--violet),#3d1090);border:none;border-radius:7px;color:#fff;cursor:pointer;font-size:11px;font-weight:600;padding:7px 16px;align-self:flex-start">Avaliar clareza</button>
+    </div>
+    <div id="feynResult" class="ftool-result"></div>
+  </div>
+
+  <!-- 7. MOTOR DE DEDUÇÃO -->
+  <div class="ftool">
+    <div class="ftool-hd"><div class="ftool-ico">⚙</div><div><div class="ftool-title">Motor de Dedução Lógica</div><div class="ftool-sub">Define premissas, o sistema constrói a árvore de derivação e tenta concluir por Modus Ponens</div></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input class="ftool-input" id="ded1" placeholder="Premissa 1: Todos os X são Y">
+      <input class="ftool-input" id="ded2" placeholder="Premissa 2: Z é X">
+      <button onclick="runDeducao()" style="background:linear-gradient(135deg,var(--teal),#007a6e);border:none;border-radius:7px;color:#000;cursor:pointer;font-size:11px;font-weight:600;padding:7px 16px;align-self:flex-start">Deduzir</button>
+    </div>
+    <div id="dedResult" class="ftool-result"></div>
+  </div>
+
+  <!-- 8. DEBUGGER DE ARGUMENTOS -->
+  <div class="ftool">
+    <div class="ftool-hd"><div class="ftool-ico">🧬</div><div><div class="ftool-title">Debugger de Argumentos</div><div class="ftool-sub">Cola um argumento científico — o sistema detecta falácias lógicas e pontos fracos</div></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <textarea class="ftool-input" id="argText" rows="3" placeholder="Cola o teu argumento aqui..." style="resize:none"></textarea>
+      <button onclick="runDebugArg()" style="background:linear-gradient(135deg,var(--gold),#7a4a10);border:none;border-radius:7px;color:#000;cursor:pointer;font-size:11px;font-weight:600;padding:7px 16px;align-self:flex-start">Analisar</button>
+    </div>
+    <div id="argResult" class="ftool-result"></div>
+  </div>
+
+  <!-- 9. SIMULADOR DE DIFUSÃO -->
+  <div class="ftool">
+    <div class="ftool-hd"><div class="ftool-ico">📡</div><div><div class="ftool-title">Simulador de Difusão de Ideias</div><div class="ftool-sub">Modela como uma ideia tua se propagaria numa rede científica usando equações de difusão SIR</div></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+      <div class="fld"><label style="font-size:8px;color:var(--muted);letter-spacing:.1em">REDE (nós)</label><input class="ftool-input" type="number" id="difN" value="200" style="width:100%"></div>
+      <div class="fld"><label style="font-size:8px;color:var(--muted);letter-spacing:.1em">R₀ (0-1)</label><input class="ftool-input" type="number" id="difR" value="0.4" step="0.05" min="0" max="1" style="width:100%"></div>
+      <div class="fld"><label style="font-size:8px;color:var(--muted);letter-spacing:.1em">IDEIA</label><input class="ftool-input" id="difIdea" placeholder="Ex: CRISPR"></div>
+    </div>
+    <button onclick="runDifusao()" style="background:linear-gradient(135deg,#00C896,#007a6e);border:none;border-radius:7px;color:#000;cursor:pointer;font-size:11px;font-weight:600;padding:7px 16px">Simular propagação</button>
+    <div id="difResult" class="ftool-result"></div>
+    <canvas id="difCanvas" width="500" height="80" style="display:none;margin-top:10px;width:100%;border-radius:7px;background:rgba(0,0,0,.3)"></canvas>
+  </div>
+
+  <!-- 10. KOLMOGOROV -->
+  <div class="ftool">
+    <div class="ftool-hd"><div class="ftool-ico">🧮</div><div><div class="ftool-title">Complexidade de Kolmogorov</div><div class="ftool-sub">Estima a densidade de informação das tuas ideias — distingue o genuinamente original do derivado</div></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <textarea class="ftool-input" id="kolText" rows="3" placeholder="Descreve uma ideia tua o mais sucintamente possível..." style="resize:none"></textarea>
+      <button onclick="runKolmogorov()" style="background:linear-gradient(135deg,var(--anime),#9a1a5a);border:none;border-radius:7px;color:#fff;cursor:pointer;font-size:11px;font-weight:600;padding:7px 16px;align-self:flex-start">Calcular complexidade</button>
+    </div>
+    <div id="kolResult" class="ftool-result"></div>
+  </div>`;
+}
+
+function inferMore(){
+  const notes=DB.notes();const activeCats=Object.keys(notes).filter(k=>notes[k]&&notes[k].length>0);
+  if(activeCats.length<2){const el=document.getElementById('inferResult');if(el){el.textContent='Regista notas em pelo menos 2 dimensões para detectar conexões.';el.classList.add('show');}return;}
+  const a=activeCats[Math.floor(Math.random()*activeCats.length)];let b=a;while(b===a)b=activeCats[Math.floor(Math.random()*activeCats.length)];
+  const ca=CATS.find(x=>x.id===a),cb=CATS.find(x=>x.id===b);
+  const na=notes[a][Math.floor(Math.random()*notes[a].length)];const nb=notes[b][Math.floor(Math.random()*notes[b].length)];
+  const el=document.getElementById('inferResult');if(el){el.innerHTML=`<div style="color:var(--violet);font-weight:600;margin-bottom:6px">🔮 Conexão detectada</div><div style="font-size:11px;color:var(--muted);margin-bottom:8px">${ca?ca.name:a} ↔ ${cb?cb.name:b}</div><div style="font-size:11px;line-height:1.5"><b style="color:rgba(232,232,244,.7)">${ca?ca.icon:''} ${esc((na.text||'').slice(0,80))}...</b><br><span style="color:var(--muted)">pode conectar com →</span><br><b style="color:rgba(232,232,244,.7)">${cb?cb.icon:''} ${esc((nb.text||'').slice(0,80))}...</b></div>`;el.classList.add('show');}
+}
+
+function runFeynman(){
+  const concept=document.getElementById('feynConcept').value.trim();
+  const text=document.getElementById('feynText').value.trim();
+  if(!concept||!text){toast('⚠ Preenche o conceito e a explicação');return;}
+  const complexWords=text.split(/\s+/).filter(w=>w.length>9).length;
+  const totalWords=text.split(/\s+/).filter(Boolean).length;
+  const sentences=text.split(/[.!?]+/).filter(Boolean).length;
+  const avgLen=totalWords/Math.max(1,sentences);
+  const score=Math.max(0,Math.min(100,100-complexWords*6-(avgLen>20?20:0)));
+  const el=document.getElementById('feynResult');
+  el.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:${score>70?'var(--teal)':score>40?'var(--gold)':'var(--red)'}">${score}<span style="font-size:14px">/100</span></div>
+    <div><div style="font-weight:600;color:${score>70?'var(--teal)':score>40?'var(--gold)':'var(--red)'}">${score>70?'Feynman aprovaria':'Ainda demasiado técnico':score>40?'No caminho certo — simplifica mais':'Volta ao início — explica como se 5 anos'}</div><div style="font-size:10px;color:var(--muted);margin-top:3px">${complexWords} palavras longas · ${totalWords} palavras totais · ${sentences} frases</div></div></div>
+  <div class="fbar"><div class="fbar-fill" style="width:${score}%;background:${score>70?'var(--teal)':score>40?'var(--gold)':'var(--red)'}"></div></div>
+  ${complexWords>0?`<div style="font-size:10px;color:var(--muted);margin-top:8px">Reduz palavras com mais de 9 letras — cada uma custa 6 pontos.</div>`:'<div style="font-size:10px;color:var(--teal);margin-top:8px">✓ Vocabulário acessível detectado!</div>'}`;
+  el.classList.add('show');
+  if(score>70){const notes=DB.notes();if(!notes['investigacao'])notes['investigacao']=[];notes['investigacao'].push({id:uid(),text:`FEYNMAN (${score}/100): ${concept} — ${text.slice(0,100)}`,date:today(),time:nowT()});DB.sn(notes);toast(`🧠 Score ${score}/100 — guardado nas notas!`);}
+}
+
+function runDeducao(){
+  const p1=document.getElementById('ded1').value.trim();const p2=document.getElementById('ded2').value.trim();
+  if(!p1||!p2){toast('⚠ Preenche as duas premissas');return;}
+  const el=document.getElementById('dedResult');
+  const m=p1.match(/todos os (.+?) são (.+)/i)||p1.match(/todo (.+?) é (.+)/i);
+  let conclusion='Não foi possível derivar conclusão automaticamente — verifica a forma lógica.';let valid=false;
+  if(m){const classe=m[1].toLowerCase().trim(),predicado=m[2].trim();if(p2.toLowerCase().includes(classe.slice(0,-1))||p2.toLowerCase().includes(classe)){const subj=p2.split(/é |is /i)[0].trim();conclusion=`∴ Logo, ${subj} é ${predicado}.`;valid=true;}}
+  el.innerHTML=`<div class="deduction-tree">
+    <div style="color:var(--muted)">P1: <span style="color:var(--white)">${esc(p1)}</span></div>
+    <div style="color:var(--muted)">P2: <span style="color:var(--white)">${esc(p2)}</span></div>
+    <div style="border-top:1px solid var(--border);margin:6px 0;padding-top:6px;color:${valid?'var(--teal)':'var(--red)'};font-weight:600">${conclusion}</div>
+    <div style="font-size:9px;color:var(--muted)">${valid?'Modus Ponens válido ✓':'Forma não reconhecida — tenta: "Todos os X são Y" + "Z é X"'}</div>
+  </div>`;
+  el.classList.add('show');
+}
+
+function runDebugArg(){
+  const text=document.getElementById('argText').value.trim();if(!text)return;
+  const falacias=[];
+  const checks=[
+    {re:/\btodos\b|\bsempre\b|\bnunca\b|\bnenhum\b/i,name:'Generalização excessiva',desc:'Evita "todos", "sempre", "nunca" sem evidência suficiente.'},
+    {re:/\bportanto\b|\blogo\b|\bobviamente\b|\bclaramente\b/i,name:'Conclusão precipitada',desc:'Estas palavras mascaram saltos lógicos — explicita o raciocínio.'},
+    {re:/\bnatural(mente)?\b|\bartificial\b/i,name:'Falácia naturalista',desc:'"Natural" não é sinónimo de bom ou correcto.'},
+    {re:/\bna minha experiência\b|\beu acho\b|\bacredito que\b/i,name:'Apelo à autoridade pessoal',desc:'A experiência individual não substitui evidência sistemática.'},
+    {re:/\bmuita gente diz\b|\btodo o mundo sabe\b|\bé sabido que\b/i,name:'Apelo à maioria',desc:'"Muita gente" não é argumento — a maioria já esteve errada.'},
+    {re:/\bse não .+ então\b|\bou .+ ou\b/i,name:'Falso dilema',desc:'Podes estar a apresentar apenas duas opções quando existem mais.'},
+    {re:/\bisto prova\b|\bisto demonstra\b|\bcorrelação .* causalidade\b/i,name:'Correlação ≠ Causalidade',desc:'Correlação não implica causalidade — precisas de mecanismo causal.'},
+  ];
+  checks.forEach(c=>{if(c.re.test(text))falacias.push(c);});
+  const el=document.getElementById('argResult');
+  el.innerHTML=falacias.length?`<div style="color:var(--red);font-weight:600;margin-bottom:10px">⚠ ${falacias.length} falácia${falacias.length>1?'s':''} detectada${falacias.length>1?'s':''}</div>${falacias.map(f=>`<div style="padding:7px 0;border-bottom:1px solid var(--border)"><div style="font-size:11px;font-weight:600;color:var(--gold)">${f.name}</div><div style="font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4">${f.desc}</div></div>`).join('')}`:`<div style="color:var(--teal);font-weight:600">✓ Nenhuma falácia óbvia detectada</div><div style="font-size:10px;color:var(--muted);margin-top:6px">O argumento parece estruturalmente sólido. Verifica ainda: tem evidências citadas? A amostra é representativa? Há conflito de interesses?</div>`;
+  el.classList.add('show');
+}
+
+function runDifusao(){
+  const N=parseInt(document.getElementById('difN').value)||200;
+  const R0=parseFloat(document.getElementById('difR').value)||0.4;
+  const ideia=document.getElementById('difIdea').value||'a tua ideia';
+  const t50=R0>0?Math.round(Math.log(N/2)/Math.log(1+R0)):999;
+  const tPeak=R0>0?Math.round(Math.log(N)/Math.log(1+R0)):999;
+  // Simulate SIR curve
+  let S=N-1,I=1,R2=0;const curve=[];
+  for(let t=0;t<Math.min(tPeak*2,100);t++){const newI=Math.round(I*R0*(S/N));const newR=Math.round(I*0.1);I=Math.max(0,I+newI-newR);S=Math.max(0,S-newI);R2+=newR;curve.push(I);}
+  const canvas=document.getElementById('difCanvas');canvas.style.display='block';const ctx2=canvas.getContext('2d');const W2=canvas.width,H2=canvas.height;ctx2.clearRect(0,0,W2,H2);const maxI=Math.max(...curve)||1;curve.forEach((v,i)=>{const x=(i/curve.length)*W2;const h=(v/maxI)*(H2-10);ctx2.fillStyle=`rgba(0,229,204,${0.3+v/maxI*0.5})`;ctx2.fillRect(x,H2-h,W2/curve.length-1,h);});
+  const el=document.getElementById('difResult');
+  el.innerHTML=`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:2"><div>Ideia: <span style="color:var(--teal)">${esc(ideia)}</span></div><div>Rede: <span style="color:var(--gold)">${N} nós</span> · R₀=<span style="color:var(--gold)">${R0}</span></div><div>50% atingidos em: <span style="color:var(--teal)">~${t50} iterações</span></div><div>Pico de propagação: <span style="color:var(--teal)">~${tPeak} iterações</span></div><div style="margin-top:4px;font-size:9px;color:var(--muted)">${R0>0.5?'Alta transmissibilidade — propaga-se rápido mas pode saturar a rede.':R0>0.2?'Transmissibilidade moderada — propagação sustentada.':'Baixa transmissibilidade — a ideia precisa de mais evidência ou clareza.'}</div></div>`;
+  el.classList.add('show');
+}
+
+function runKolmogorov(){
+  const text=document.getElementById('kolText').value.trim();if(!text)return;
+  const words=text.split(/\s+/).filter(Boolean);const chars=text.length;
+  const unique=new Set(words.map(w=>w.toLowerCase())).size;
+  const ratio=unique/Math.max(1,chars);const score=Math.round(ratio*1000);
+  const compressed=Math.round(chars*0.6);// rough LZ estimate
+  const el=document.getElementById('kolResult');
+  el.innerHTML=`<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:var(--anime)">${score}<span style="font-size:12px"> K-bits</span></div>
+    <div><div style="font-weight:600;color:${score>30?'var(--teal)':score>15?'var(--gold)':'var(--muted)'}">${score>30?'Alta originalidade':'score>15?Densidade moderada':'Ideia derivada ou comprimível'}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${chars} chars · ${unique} termos únicos · ~${compressed} bytes comprimidos</div></div></div>
+  <div class="fbar-wrap"><div class="fbar-label"><span>Derivada</span><span>Moderada</span><span>Original</span></div><div class="fbar"><div class="fbar-fill" style="width:${Math.min(100,score*2)}%;background:linear-gradient(90deg,var(--muted),var(--gold),var(--teal))"></div></div></div>
+  <div style="font-size:10px;color:var(--muted);margin-top:8px">${score>30?'✦ Ideia densa e difícil de comprimir — sinal de originalidade genuína.':score>15?'→ Ideia com conteúdo moderado. Aprofunda com mais especificidade.':'⚠ Ideia muito comprimível. Pode ser reformulação de algo existente — vai mais fundo.'}</div>`;
+  el.classList.add('show');
+}
+function renderLegado(body){const leg=DB.legacy();body.innerHTML=`<div style="max-width:660px;margin:0 auto"><div class="legacy-card" style="margin-bottom:16px"><div style="font-family:'Orbitron',monospace;font-size:9px;color:var(--gold);letter-spacing:.2em;margin-bottom:10px">PROTOCOLO DE LEGADO PERMANENTE</div><div class="legacy-quote">"O que um ser humano pensa, escreve e descobre não deve desaparecer com ele. Deve orbitar para sempre na memória do cosmos."</div></div><div class="card" style="margin-bottom:12px"><div class="ct">Cápsula do Tempo</div><div class="fld" style="margin-bottom:9px"><label>Mensagem para o futuro</label><textarea id="legT" placeholder="Uma teoria, carta, previsão..." style="min-height:90px">${leg.capsule||''}</textarea></div><div class="fld" style="margin-bottom:9px"><label>Data de abertura</label><input type="date" id="legD" value="${leg.openDate||''}"></div><button class="btn bg bsm" onclick="saveLeg()">🏛 Selar</button></div><div class="card"><div class="ct">Manifesto Pessoal</div><div class="fld" style="margin-bottom:9px"><label>Os teus princípios e missão científica</label><textarea id="legM" placeholder="O que acreditas e defenderás sempre..." style="min-height:70px">${leg.manifesto||''}</textarea></div><button class="btn bgh bsm" onclick="saveMan()">Guardar manifesto</button></div>${leg.capsule?`<div class="card" style="margin-top:12px"><div class="ct">Cápsula selada</div><div style="font-size:10px;color:var(--muted)">📅 Abre em: ${leg.openDate||'data não definida'}</div><div style="font-size:11px;margin-top:6px;font-style:italic;color:rgba(232,232,244,.55)">${esc(leg.capsule.slice(0,200))}${leg.capsule.length>200?'...':''}</div></div>`:''}</div>`;}
+function saveLeg(){const l=DB.legacy();l.capsule=document.getElementById('legT').value;l.openDate=document.getElementById('legD').value;DB.slg(l);toast('🏛 Cápsula selada!');}
+function saveMan(){const l=DB.legacy();l.manifesto=document.getElementById('legM').value;DB.slg(l);toast('📜 Manifesto guardado!');}
+// MODALS
+const MDEFS={
+  diario:{t:'Nova Entrada de Diário',s:'Publica uma descoberta ou reflexão',f:`<div class="m-row"><div class="fld grow"><label>Título</label><input type="text" id="mf1" placeholder="Título"></div><div class="fld"><label>Tipo</label><select id="mf2"><option value="DESCOBERTA">Descoberta</option><option value="REFLEXÃO">Reflexão</option><option value="ARTIGO">Artigo</option><option value="CASO CLÍNICO">Caso Clínico</option><option value="INSIGHT">Insight</option><option value="TEORIA">Teoria</option></select></div></div><div class="m-row"><div class="fld grow"><label>Autor</label><input type="text" id="mf3" value="Dr. Parallax Habu"></div><div class="fld grow"><label>Local</label><input type="text" id="mf4" placeholder="Maputo, HCM..."></div></div><div class="fld"><label>Corpo</label><textarea id="mf5" style="min-height:110px" placeholder="Escreve livremente..."></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return toast('⚠ Título obrigatório');const d=DB.diary();d.push({id:uid(),title:t,type:document.getElementById('mf2').value,author:document.getElementById('mf3').value,local:document.getElementById('mf4').value,hora:nowT(),body:document.getElementById('mf5').value,date:today()});DB.sd(d);closeModal();renderDiario(document.getElementById('pBody'));toast('📓 Entrada guardada!');}},
+  curio:{t:'Nova Curiosidade',s:'O que te surpreendeu hoje?',f:`<div class="fld"><label>Curiosidade</label><textarea id="mf1" style="min-height:80px" placeholder="Algo que descobriste..."></textarea></div><div class="fld"><label>Categoria</label><select id="mf2"><option>ASTROFÍSICA</option><option>MEDICINA</option><option>MATEMÁTICA</option><option>F1</option><option>QURAN</option><option>HISTÓRIA</option><option>BIOLOGIA</option><option>FÍSICA</option><option>ANIME</option><option>LINGUÍSTICA</option><option>GERAL</option></select></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const d=DB.curio();d.push({id:uid(),text:t,categoria:document.getElementById('mf2').value,date:today()});DB.sc(d);closeModal();renderCurio(document.getElementById('pBody'));toast('💡 Curiosidade guardada!');}},
+  proj:{t:'Novo Projecto',s:'Regista um projecto científico ou pessoal',f:`<div class="fld"><label>Título</label><input type="text" id="mf1" placeholder="Ex: QUARK-BC — Random Forest Cancro"></div><div class="m-row"><div class="fld"><label>Status</label><select id="mf2"><option value="dev">Em Desenvolvimento</option><option value="idea">Ideia</option><option value="done">Concluído</option><option value="pause">Pausado</option></select></div><div class="fld"><label>Área</label><select id="mf3"><option value="medicina">Medicina</option><option value="investigacao">Investigação</option><option value="codigo">Programação</option><option value="outro">Outro</option></select></div></div><div class="fld"><label>Descrição</label><textarea id="mf4" placeholder="Descreve..."></textarea></div><div class="fld"><label>Tags (vírgula)</label><input type="text" id="mf5" placeholder="ML, cirurgia, Maputo"></div><div class="fld"><label>Link externo</label><input type="url" id="mf6" placeholder="https://github.com/..."></div><div class="fld"><label>Upload (PDF/imagem)</label><input type="file" id="mf8" accept=".pdf,.png,.jpg,.docx" style="color:var(--muted)"></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return toast('⚠ Título obrigatório');const fi=document.getElementById('mf8');const save=(data,name)=>{const d=DB.proj();d.push({id:uid(),title:t,status:document.getElementById('mf2').value,area:document.getElementById('mf3').value,desc:document.getElementById('mf4').value,tags:document.getElementById('mf5').value,link:document.getElementById('mf6').value,file:data,fileName:name,date:today()});DB.sp(d);closeModal();renderProj(document.getElementById('pBody'),null);toast('🧬 Projecto guardado!');};if(fi.files.length){const r=new FileReader();r.onload=e=>save(e.target.result,fi.files[0].name);r.readAsDataURL(fi.files[0]);}else save(null,null);}},
+  gal:{t:'Nova Descoberta',s:'Cataloga um insight ou momento épico',f:`<div class="m-row"><div class="fld" style="width:65px"><label>Emoji</label><input type="text" id="mf1" placeholder="✨" style="font-size:18px;text-align:center"></div><div class="fld grow"><label>Título</label><input type="text" id="mf2" placeholder="Nome da descoberta"></div></div><div class="fld"><label>Descrição</label><textarea id="mf3" placeholder="Descreve..."></textarea></div><div class="fld"><label>Categoria</label><select id="mf4"><option>ASTROFÍSICA</option><option>MEDICINA</option><option>MATEMÁTICA</option><option>ANIME</option><option>LINGUÍSTICA</option><option>ARTE</option><option>GERAL</option></select></div>`,sv:()=>{const t=document.getElementById('mf2').value.trim();if(!t)return;const d=DB.gal();d.push({id:uid(),emoji:document.getElementById('mf1').value||'✨',title:t,body:document.getElementById('mf3').value,categoria:document.getElementById('mf4').value,date:today()});DB.sg(d);closeModal();renderGaleria(document.getElementById('pBody'));toast('✨ Descoberta catalogada!');}},
+  paradoxo:{t:'Submeter Paradoxo',s:'Uma questão que resiste ao tempo',f:`<div class="fld"><label>Título</label><input type="text" id="mf1" placeholder="O paradoxo em poucas palavras..."></div><div class="fld"><label>Desenvolvimento</label><textarea id="mf2" style="min-height:90px" placeholder="Explica em detalhe..."></textarea></div><div class="fld"><label>Dica de resolução</label><input type="text" id="mf5" placeholder="Uma pista para quem tenta resolver..."></div><div class="m-row"><div class="fld"><label>Categoria</label><select id="mf3"><option>LÓGICA</option><option>FÍSICA</option><option>ÉTICA</option><option>MATEMÁTICA</option><option>EXISTENCIAL</option><option>MÉDICA</option></select></div><div class="fld grow"><label>Autor</label><input type="text" id="mf4" value="Dr. Parallax Habu"></div></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return toast('⚠ Título obrigatório');const d=DB.paradoxos();d.push({id:uid(),title:t,body:document.getElementById('mf2').value,dica:document.getElementById('mf5').value,categoria:document.getElementById('mf3').value,author:document.getElementById('mf4').value,status:'open',resolutions:[],date:today()});DB.spx(d);closeModal();renderParadoxos(document.getElementById('pBody'));toast('🌀 Paradoxo lançado ao universo!');}},
+  livro:{t:'Adicionar Livro',s:'Regista na tua biblioteca',f:`<div class="m-row"><div class="fld grow"><label>Título</label><input type="text" id="mf1" placeholder="Título"></div><div class="fld grow"><label>Autor</label><input type="text" id="mf2" placeholder="Autor"></div></div><div class="m-row"><div class="fld grow"><label>Género</label><input type="text" id="mf3" placeholder="Ficção científica..."></div><div class="fld"><label>Status</label><select id="mf4"><option value="reading">A Ler</option><option value="done">Lido</option><option value="want">Quero Ler</option><option value="club">Clube do Mês</option></select></div></div><div class="fld"><label>Progresso (%)</label><input type="number" id="mf5" value="0" min="0" max="100" style="width:76px"></div><div class="fld"><label>Citação favorita</label><input type="text" id="mf6" placeholder="Uma frase marcante..."></div><div class="fld"><label>Nota pessoal</label><textarea id="mf7" placeholder="O que este livro te deu..."></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const d=DB.livros();d.push({id:uid(),title:t,author:document.getElementById('mf2').value,genre:document.getElementById('mf3').value,status:document.getElementById('mf4').value,progress:parseInt(document.getElementById('mf5').value)||0,quote:document.getElementById('mf6').value,note:document.getElementById('mf7').value,date:today()});DB.sl(d);closeModal();renderLivros(document.getElementById('pBody'));toast('📚 Livro adicionado!');}},
+  post:{t:'Novo Post',s:'Partilha uma ideia',f:`<div class="fld"><label>Título</label><input type="text" id="mf1" placeholder="Título do post"></div><div class="fld"><label>Conteúdo</label><textarea id="mf2" placeholder="O que queres partilhar?"></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const d=DB.posts();d.push({id:uid(),title:t,body:document.getElementById('mf2').value,cat:window._mCat||'investigacao',author:'Dr. Parallax Habu',date:today()});DB.spo(d);closeModal();toast('📝 Post publicado!');}},
+  anime:{t:'Adicionar Anime',s:'Regista na biblioteca',f:`<div class="m-row"><div class="fld grow"><label>Título</label><input type="text" id="mf1" placeholder="Ex: Fullmetal Alchemist: Brotherhood"></div><div class="fld"><label>Eps</label><input type="number" id="mf2" placeholder="64" style="width:65px"></div></div><div class="m-row"><div class="fld grow"><label>Género</label><input type="text" id="mf3" placeholder="Shonen, Seinen..."></div><div class="fld"><label>Status</label><select id="mf4"><option value="watching">A Ver</option><option value="done">Visto</option><option value="plan">Planeado</option><option value="dropped">Abandonado</option></select></div></div><div class="fld"><label>Rating (1-5)</label><input type="number" id="mf5" min="1" max="5" value="5" style="width:65px"></div><div class="fld"><label>Nota</label><textarea id="mf6" placeholder="Impressões, personagens favoritos..."></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const d=DB.anime();d.push({id:uid(),title:t,episodes:document.getElementById('mf2').value,genre:document.getElementById('mf3').value,status:document.getElementById('mf4').value,rating:parseInt(document.getElementById('mf5').value)||5,note:document.getElementById('mf6').value,date:today()});DB.san(d);closeModal();renderAnimeLib(document.getElementById('pBody'));toast('⛩ Anime adicionado!');}},
+  debate:{t:'Novo Debate',s:'Dois lados, uma questão',f:`<div class="fld"><label>Questão</label><input type="text" id="mf1" placeholder="Ex: Goku vs Saitama — quem ganha?"></div><div class="m-row"><div class="fld grow"><label>Lado A</label><textarea id="mf2" placeholder="Argumentos A..."></textarea></div><div class="fld grow"><label>Lado B</label><textarea id="mf3" placeholder="Argumentos B..."></textarea></div></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const d=DB.posts();d.push({id:uid(),title:t,sideA:document.getElementById('mf2').value,sideB:document.getElementById('mf3').value,cat:'anime',isDebate:true,date:today()});DB.spo(d);closeModal();renderDebates(document.getElementById('pBody'));toast('⚔️ Debate criado!');}},
+  heresia:{t:'Nova Heresia Científica',s:'Uma ideia radical que contradiz o consenso',f:`<div class="fld"><label>Título</label><input type="text" id="mf1" placeholder="A minha heresia..."></div><div class="fld"><label>Argumentação</label><textarea id="mf2" style="min-height:90px" placeholder="Porque contradiz o consenso e porque acreditas nela..."></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const d=DB.heresias();d.push({id:uid(),title:t,body:document.getElementById('mf2').value,status:'debate',date:today()});DB.she(d);closeModal();renderHeresias(document.getElementById('pBody'));toast('⚡ Heresia lançada!');}},
+  oraculo:{t:'Nova Previsão',s:'O que prevês para a ciência e medicina?',f:`<div class="fld"><label>Previsão</label><input type="text" id="mf1" placeholder="Ex: CRISPR curará a drepanocitose antes de 2030"></div><div class="m-row"><div class="fld grow"><label>Domínio</label><select id="mf2"><option>MEDICINA</option><option>ASTROFÍSICA</option><option>FÍSICA</option><option>TECNOLOGIA</option><option>BIOLOGIA</option><option>MATEMÁTICA</option></select></div><div class="fld grow"><label>Prazo</label><input type="date" id="mf3"></div></div><div class="fld"><label>Argumentação</label><textarea id="mf4" placeholder="Porque acreditas nisto?"></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const d=DB.oraculo();d.push({id:uid(),title:t,domain:document.getElementById('mf2').value,deadline:document.getElementById('mf3').value,arg:document.getElementById('mf4').value,date:today()});DB.sor(d);closeModal();renderOraculo(document.getElementById('pBody'));toast('🔮 Previsão registada!');}},
+  linguagem:{t:'Novo Termo',s:'Define um conceito que só existe aqui',f:`<div class="fld"><label>Termo</label><input type="text" id="mf1" placeholder="Ex: Parallaxar, Orbitar..."></div><div class="fld"><label>Definição</label><textarea id="mf2" placeholder="O que significa..."></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const d=DB.linguagem();d.push({id:uid(),term:t,def:document.getElementById('mf2').value,date:today()});DB.sln(d);closeModal();renderLinguagem(document.getElementById('pBody'));toast('🗣 Termo adicionado à língua!');}},
+  seti:{t:'Registar Sinal Anómalo',s:'Uma descoberta que ainda não entendes',f:`<div class="fld"><label>Descreve o sinal</label><textarea id="mf1" style="min-height:80px" placeholder="Algo que observaste e não consegues explicar..."></textarea></div><div class="fld"><label>Força da evidência (1-5)</label><input type="number" id="mf2" min="1" max="5" value="2" style="width:65px"></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const d=DB.seti();d.push({id:uid(),body:t,strength:parseInt(document.getElementById('mf2').value)||2,classified:false,date:today()});DB.sst(d);closeModal();renderSeti(document.getElementById('pBody'));toast('📡 Sinal em quarentena!');}},
+  hipotese:{t:'Nova Hipótese',s:'Regista e rastreia evidências',f:`<div class="fld"><label>Hipótese (H₁)</label><input type="text" id="mf1" placeholder="A intervenção X melhora Y..."></div><div class="fld"><label>Hipótese nula (H₀)</label><input type="text" id="mf2" placeholder="Não há diferença significativa..."></div><div class="fld"><label>Como testar</label><textarea id="mf3" placeholder="Metodologia proposta..."></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const d=DB.hipoteses();d.push({id:uid(),title:t,h0:document.getElementById('mf2').value,method:document.getElementById('mf3').value,evidencias:[],date:today()});DB.shi(d);closeModal();renderHipoteses(document.getElementById('pBody'));toast('🔬 Hipótese registada!');}},
+  feynman:{t:'Modo Feynman',s:'Explica como se fossem 12 anos',f:`<div class="fld"><label>Conceito</label><input type="text" id="mf1" placeholder="Ex: Equações de Maxwell, CRISPR..."></div><div class="fld"><label>A tua explicação simples</label><textarea id="mf2" style="min-height:100px" placeholder="Sem termos técnicos..."></textarea></div>`,sv:()=>{const c=document.getElementById('mf1').value.trim(),e=document.getElementById('mf2').value.trim();if(!c||!e)return;const complex=e.split(/[^a-záéíóúãõâêôàç]/i).filter(w=>w.length>8).length;const score=Math.max(0,100-complex*5);closeModal();toast(`Feynman Score: ${score}/100 — ${score>70?'Claro!':score>40?'Ainda há termos complexos':'Simplifica mais!'}`)}},
+  analogia:{t:'Motor de Analogias',s:'Mapeia estruturalmente a analogia',f:`<div class="fld"><label>X é como Y mas em Z</label><input type="text" id="mf1" placeholder="Ex: O coração é como uma bomba mas em biologia"></div><div class="fld"><label>Onde funciona</label><textarea id="mf2" placeholder="Aspectos válidos..."></textarea></div><div class="fld"><label>Onde falha</label><textarea id="mf3" placeholder="Limites da comparação..."></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const notes=DB.notes();if(!notes['mat'])notes['mat']=[];notes['mat'].push({id:uid(),text:`ANALOGIA: ${t}\n✓ ${document.getElementById('mf2').value}\n✗ ${document.getElementById('mf3').value}`,date:today(),time:nowT()});DB.sn(notes);closeModal();toast('🔗 Analogia mapeada!');}},
+  h0gen:{t:'Gerador de H₀',s:'Gera hipótese nula automaticamente',f:`<div class="fld"><label>A tua hipótese (H₁)</label><input type="text" id="mf1" placeholder="Ex: O extracto X reduz a parasitemia em 40%..."></div>`,sv:()=>{const h1=document.getElementById('mf1').value.trim();if(!h1)return;closeModal();setTimeout(()=>{openM('hipotese');setTimeout(()=>{const f=document.getElementById('mf1');if(f)f.value=h1;const g=document.getElementById('mf2');if(g)g.value='Não há diferença estatisticamente significativa em: '+h1;},50);},200);toast('H₀ gerada — revisa e guarda!');}},
+  debugArg:{t:'Debugger de Argumentos',s:'Detecta falácias e pontos fracos',f:`<div class="fld"><label>Argumento científico</label><textarea id="mf1" style="min-height:100px" placeholder="Cola aqui o teu argumento..."></textarea></div>`,sv:()=>{const a=document.getElementById('mf1').value.trim();if(!a)return;const falacias=[];if(/todos|sempre|nunca|nenhum/i.test(a))falacias.push('Generalização excessiva');if(/logo|portanto|obviamente/i.test(a))falacias.push('Conclusão precipitada');if(/porque eu|na minha experiência/i.test(a))falacias.push('Apelo à autoridade pessoal');if(/natural(mente)?/i.test(a))falacias.push('Falácia naturalista');closeModal();toast(falacias.length?`⚠ Falácias: ${falacias.join(', ')}`:'✓ Nenhuma falácia óbvia detectada');}},
+  metaforas:{t:'Compilador de Metáforas',s:'Rastreia domínios que usas mais',f:`<div class="fld"><label>Texto com metáforas</label><textarea id="mf1" style="min-height:90px" placeholder="Cola um texto teu..."></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value;const domains=['física','biologia','arquitectura','música','culinária','astronomia','matemática','medicina'];const found=domains.filter(d=>new RegExp(d,'i').test(t));closeModal();toast(found.length?`Domínios: ${found.join(', ')}`:'Nenhum domínio específico detectado');}},
+  difusao:{t:'Simulador de Difusão de Ideias',s:'Modela a propagação numa rede científica',f:`<div class="fld"><label>Ideia a propagar</label><input type="text" id="mf1" placeholder="Ex: CRISPR terapêutico em Moçambique"></div><div class="fld"><label>Tamanho da rede (nós)</label><input type="number" id="mf2" value="100" style="width:80px"></div><div class="fld"><label>Coeficiente de transmissão (0-1)</label><input type="number" id="mf3" value="0.3" min="0" max="1" step="0.1" style="width:80px"></div>`,sv:()=>{const R0=parseFloat(document.getElementById('mf3').value)||0.3,N=parseInt(document.getElementById('mf2').value)||100;const t50=Math.round(Math.log(N/2)/Math.log(1+R0));closeModal();toast(`R₀=${R0} · N=${N} · 50% atingidos em ~${t50} iterações`);}},
+  turing:{t:'Protocolo de Turing Pessoal',s:'Perguntas que só tu respondes correctamente',f:`<div class="fld"><label>Pergunta de autenticação</label><input type="text" id="mf1" placeholder="Ex: Qual o meu projecto mais antigo?"></div><div class="fld"><label>Resposta (só tu sabes)</label><input type="text" id="mf2" placeholder="A resposta..."></div>`,sv:()=>{const q=document.getElementById('mf1').value.trim();if(!q)return;const notes=DB.notes();if(!notes['investigacao'])notes['investigacao']=[];notes['investigacao'].push({id:uid(),text:`TURING: ${q}`,date:today(),time:nowT()});DB.sn(notes);closeModal();toast('🔐 Protocolo de Turing registado!');}},
+  kolmogorov:{t:'Complexidade de Kolmogorov',s:'Estima a originalidade da tua ideia',f:`<div class="fld"><label>Descreve a tua ideia sucintamente</label><textarea id="mf1" style="min-height:80px" placeholder="Descreve..."></textarea></div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const words=new Set(t.toLowerCase().split(/\W+/)).size;const ratio=words/t.length;const score=Math.round(ratio*1000);closeModal();toast(`K ~${score} bits/char · ${score>30?'Alta densidade — original e complexa':score>15?'Densidade moderada':'Baixa densidade — pode ser mais comprimida'}`)}},
+  latex:{t:'Editor LaTeX',s:'Escreve equações com render',f:`<div class="fld"><label>Equação LaTeX</label><input type="text" id="mf1" placeholder="Ex: E = mc^2 ou \\int_0^\\infty e^{-x} dx = 1" oninput="prevLatex(this.value)"></div><div id="latexPrev" style="background:rgba(0,0,0,.3);border-radius:7px;padding:12px;min-height:60px;margin-top:8px;text-align:center;font-size:16px;color:var(--gold)">Pré-visualização aqui</div>`,sv:()=>{const t=document.getElementById('mf1').value.trim();if(!t)return;const notes=DB.notes();if(!notes['mat'])notes['mat']=[];notes['mat'].push({id:uid(),text:`LaTeX: ${t}`,date:today(),time:nowT()});DB.sn(notes);closeModal();toast('📐 Equação guardada em Matemática!');}},
+  deducao:{t:'Motor de Dedução Lógica',s:'Define premissas e deriva conclusões',f:`<div class="fld"><label>Premissa 1</label><input type="text" id="mf1" placeholder="Ex: Todos os humanos são mortais"></div><div class="fld"><label>Premissa 2</label><input type="text" id="mf2" placeholder="Ex: Sócrates é humano"></div>`,sv:()=>{const p1=document.getElementById('mf1').value.trim(),p2=document.getElementById('mf2').value.trim();if(!p1||!p2)return;closeModal();const match=p1.match(/Todos os (.+) são (.+)/i);if(match){const subj=p2.includes(match[1].toLowerCase().slice(0,-1))||p2.toLowerCase().includes(match[1].toLowerCase());if(subj)return toast(`∴ Conclusão: ${p2.split(' ')[p2.split(' ').length-1]||'o sujeito'} é ${match[2]} (Modus Ponens válido)`);}toast(`Premissas registadas. Verifica validade manualmente.`);}},
+};
+function prevLatex(v){const el=document.getElementById('latexPrev');if(el)el.textContent=v||'Pré-visualização aqui';}
+function openM(type,catId){window._mCat=catId;const def=MDEFS[type];if(!def)return;document.getElementById('mTit').textContent=def.t;document.getElementById('mSub').textContent=def.s;document.getElementById('mFlds').innerHTML=def.f;window._saveFn=def.sv;document.getElementById('modal').classList.add('on');}
+function closeModal(){document.getElementById('modal').classList.remove('on');window._saveFn=null;}
+function doSave(){if(window._saveFn)window._saveFn();}
+// SEARCH
+function openSearch(){document.getElementById('srch').classList.add('on');document.getElementById('srchIn').focus();}
+function closeSearch(){document.getElementById('srch').classList.remove('on');}
+function doSearch(q){const res=document.getElementById('srchRes');if(!q||q.length<2){res.innerHTML='';return;}const hl=t=>t.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>`<mark>${m}</mark>`);const results=[];DB.diary().forEach(e=>{if((e.title+e.body).toLowerCase().includes(q.toLowerCase()))results.push({type:'DIÁRIO',title:e.title,snip:e.body.slice(0,70)});});DB.proj().forEach(p=>{if(p.title.toLowerCase().includes(q.toLowerCase()))results.push({type:'PROJECTO',title:p.title,snip:p.desc.slice(0,70)});});[...BASE_PARAS,...DB.paradoxos()].forEach(p=>{if((p.title+(p.body||'')).toLowerCase().includes(q.toLowerCase()))results.push({type:'PARADOXO',title:p.title,snip:(p.body||'').slice(0,70)});});DB.curio().forEach(c=>{if(c.text.toLowerCase().includes(q.toLowerCase()))results.push({type:'CURIOSIDADE',title:c.text.slice(0,60),snip:''});});DB.heresias().forEach(h=>{if(h.title.toLowerCase().includes(q.toLowerCase()))results.push({type:'HERESIA',title:h.title,snip:(h.body||'').slice(0,70)});});DB.oraculo().forEach(o=>{if(o.title.toLowerCase().includes(q.toLowerCase()))results.push({type:'ORÁCULO',title:o.title,snip:''});});const notes=DB.notes();Object.keys(notes).forEach(cat=>{(notes[cat]||[]).forEach(n=>{if(n.text.toLowerCase().includes(q.toLowerCase())){const c=CATS.find(x=>x.id===cat);results.push({type:'NOTA·'+(c?c.name:'?'),title:n.text.slice(0,60),snip:''});}});});res.innerHTML=results.length?results.slice(0,24).map(r=>`<div class="sr"><div class="sr-type">${r.type}</div><div class="sr-title">${hl(esc(r.title))}</div>${r.snip?`<div class="sr-snip">${hl(esc(r.snip))}</div>`:''}</div>`).join(''):`<div style="text-align:center;color:var(--muted);padding:18px;font-size:12px">Sem resultados para "${esc(q)}"</div>`;}
+// IMMERSIVE
+function openImmersive(){const el=document.getElementById('immersive');el.classList.add('on');const ta=document.getElementById('immWrite');ta.focus();const leg=DB.legacy();if(leg.immersive)ta.value=leg.immersive;}
+function closeImmersive(){const ta=document.getElementById('immWrite');const leg=DB.legacy();leg.immersive=ta.value;DB.slg(leg);document.getElementById('immersive').classList.remove('on');if(ta.value.trim())toast('✍ Texto guardado no legado');}
+// TERMINAL
+function toggleTerminal(){const t=document.getElementById('terminal');t.classList.toggle('on');if(t.classList.contains('on')){termLog('ok','Parallax Terminal v2.0');termLog('ok','Comandos: /nota, /sessao [cat] [N], /paradoxo [título], /projecto [título], /heresia [título], /clear, /ajuda');document.getElementById('termIn').focus();}}
+function termLog(type,msg){const b=document.getElementById('termBody');const div=document.createElement('div');div.className='term-line '+type;div.textContent=msg;b.appendChild(div);b.scrollTop=b.scrollHeight;}
+function runCmd(raw){const input=document.getElementById('termIn');const cmd=raw.trim();input.value='';termLog('cmd','❯ '+cmd);const parts=cmd.split(' '),c=parts[0].toLowerCase(),args=parts.slice(1).join(' ');if(c==='/ajuda'||c==='help'){termLog('ok','/nota [texto]');termLog('ok','/sessao [cat] [estrelas]');termLog('ok','/paradoxo [título]');termLog('ok','/projecto [título]');termLog('ok','/heresia [título]');termLog('ok','/clear');}else if(c==='/nota'){if(!args){termLog('err','Uso: /nota [texto]');return;}const notes=DB.notes();if(!notes['investigacao'])notes['investigacao']=[];notes['investigacao'].push({id:uid(),text:args,date:today(),time:nowT()});DB.sn(notes);termLog('ok','✓ Nota guardada em Investigação');}else if(c==='/sessao'){const[catId,strs]=args.split(' ');const cat=CATS.find(c=>c.id===catId);if(!cat){termLog('err','Planeta desconhecido: '+catId);return;}const st=parseInt(strs)||3;const e=DB.entries();e.push({cat:catId,stars:st,note:'Via terminal',date:today(),ts:Date.now()});DB.se(e);updateHUD();termLog('ok',`✓ +${st} ✦ em ${cat.name}`);}else if(c==='/clear'){document.getElementById('termBody').innerHTML='';}else if(c==='/paradoxo'){if(!args){termLog('err','Uso: /paradoxo [título]');return;}const d=DB.paradoxos();d.push({id:uid(),title:args,body:'Registado via terminal',categoria:'LÓGICA',author:'Dr. Parallax Habu',status:'open',resolutions:[],date:today()});DB.spx(d);termLog('ok','✓ Paradoxo: '+args);}else if(c==='/projecto'){if(!args){termLog('err','Uso: /projecto [título]');return;}const d=DB.proj();d.push({id:uid(),title:args,status:'idea',area:'investigacao',desc:'',tags:'',date:today()});DB.sp(d);termLog('ok','✓ Projecto: '+args);}else if(c==='/heresia'){if(!args){termLog('err','Uso: /heresia [título]');return;}const d=DB.heresias();d.push({id:uid(),title:args,body:'Registada via terminal',status:'debate',date:today()});DB.she(d);termLog('ok','✓ Heresia lançada: '+args);}else{termLog('err','Comando desconhecido. /ajuda para lista.');}}
+// COSMIC CLOCK
+function updateClock(){const now=new Date();const days=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];document.getElementById('ccDate').textContent=days[now.getDay()]+', '+now.getDate()+' '+months[now.getMonth()]+' '+now.getFullYear();document.getElementById('ccTime').textContent=now.toLocaleTimeString('pt-PT');const bbH=13.8e9*365.25*24,bbM=bbH*60,eaH=4.543e9*365.25*24,eaM=eaH*60;document.getElementById('ccH').innerHTML=sciNot(bbH);document.getElementById('ccM').innerHTML=sciNot(bbM);document.getElementById('ccEH').innerHTML=sciNot(eaH);document.getElementById('ccEM').innerHTML=sciNot(eaM);}
+// HUD
+function updateHUD(){const e=DB.entries(),st=sumSt(e);document.getElementById('hStars').textContent=st;document.getElementById('hStreak').textContent=streak();document.getElementById('hConst').textContent=Math.floor(st/42);}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2900);}
+// INTRO
+function startIntro(){setTimeout(()=>document.getElementById('iT').classList.add('on'),300);setTimeout(()=>document.getElementById('iS').classList.add('on'),800);setTimeout(()=>document.getElementById('iB').classList.add('on'),500);setTimeout(()=>document.getElementById('iF').classList.add('go'),850);setTimeout(()=>document.getElementById('iH').classList.add('on'),2600);setTimeout(()=>{document.getElementById('intro').classList.add('out');document.getElementById('hud').classList.add('on');document.getElementById('gview').classList.add('on');},3900);setTimeout(()=>document.getElementById('clock').classList.add('on'),5000);}
+// INIT
+resize();loop();startIntro();updateHUD();updateClock();setInterval(updateClock,1000);
+</script>
+</body>
+</html>
