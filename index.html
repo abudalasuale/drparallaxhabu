@@ -22,7 +22,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
 .i-fill.go{width:100%}
 .i-hint{font-size:10px;color:var(--muted);margin-top:10px;letter-spacing:.15em;opacity:0;transition:opacity .5s 2.6s}
 .i-hint.on{opacity:1}
-#load{position:fixed;inset:0;z-index:180;background:rgba(0,0,15,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+#load{position:fixed;inset:0;z-index:180;background:rgba(0,0,15,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s cubic-bezier(.4,0,.2,1),visibility .3s}
 #load.on{opacity:1;visibility:visible}
 .load-name{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;letter-spacing:.25em;color:var(--gold);margin-bottom:18px;opacity:0;transform:translateY(8px);transition:opacity .35s .1s,transform .35s .1s}
 #load.on .load-name{opacity:1;transform:translateY(0)}
@@ -55,8 +55,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
 .mlabel.vis{opacity:1;pointer-events:all}
 .morb{border-radius:50%;margin:0 auto 3px;display:flex;align-items:center;justify-content:center;font-size:10px}
 .mname{font-family:'JetBrains Mono',monospace;font-size:6px;color:var(--muted)}
-#panel{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;visibility:hidden;opacity:0;pointer-events:none;background:rgba(0,0,15,.97);transition:opacity .3s}
-#panel.on{visibility:visible;opacity:1;pointer-events:all}
+#panel{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;visibility:hidden;opacity:0;pointer-events:none;background:rgba(0,0,15,.97);transform:translateY(18px) scale(.985);transition:opacity .38s cubic-bezier(.4,0,.2,1),transform .38s cubic-bezier(.4,0,.2,1),visibility .38s}
+#panel.on{visibility:visible;opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
 .ph{display:flex;align-items:center;gap:14px;padding:16px 32px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
 .pback{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s;flex-shrink:0}
 .pback:hover{background:rgba(201,168,76,.15);border-color:var(--gold)}
@@ -275,9 +275,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);color:va
 #immersive.on{opacity:1;visibility:visible}
 #immWrite{width:min(680px,90vw);background:none;border:none;color:var(--white);font-family:'Playfair Display',serif;font-size:18px;line-height:1.8;resize:none;outline:none;min-height:60vh;caret-color:var(--gold)}
 .imm-hint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.2em}
-#modal{position:fixed;inset:0;z-index:160;display:flex;align-items:center;justify-content:center;background:rgba(0,0,15,.9);backdrop-filter:blur(10px);opacity:0;visibility:hidden;transition:opacity .28s,visibility .28s}
+#modal{position:fixed;inset:0;z-index:160;display:flex;align-items:center;justify-content:center;background:rgba(0,0,15,.9);backdrop-filter:blur(10px);opacity:0;visibility:hidden;transition:opacity .35s cubic-bezier(.4,0,.2,1),visibility .35s}
 #modal.on{opacity:1;visibility:visible}
-.mbox{background:#0A0A1E;border:1px solid var(--border);border-radius:16px;padding:26px;width:min(600px,94vw);max-height:88vh;overflow-y:auto;transform:scale(.94) translateY(10px);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+.mbox{background:#0A0A1E;border:1px solid var(--border);border-radius:16px;padding:26px;width:min(600px,94vw);max-height:88vh;overflow-y:auto;transform:scale(.93) translateY(16px);transition:transform .38s cubic-bezier(.34,1.56,.64,1)}
 #modal.on .mbox{transform:scale(1) translateY(0)}
 .mbox::-webkit-scrollbar{width:3px}
 .mbox::-webkit-scrollbar-thumb{background:var(--border)}
@@ -734,168 +734,6 @@ function completeChallenge(id,stars){
   toast(`🏆 +${stars} ✦ Desafio completado!`);
   renderFerramentas(document.getElementById('pBody'));
 }
-  const k=Math.min(3,totalSt/1000);
-  const kLvl=k<0.3?'Consumidor Primário':k<0.6?'Explorador Activo':k<1?'Produtor de Conhecimento':k<1.5?'Transformador Científico':k<2?'Arquitecto Civilizacional':'Singularidade Intelectual';
-  const kPct=Math.min(100,(k/2)*100);
-  const allNotes=Object.values(notes).flat();
-  const oldNotes=allNotes.filter(n=>new Date(n.date)<new Date(Date.now()-7*86400000));
-  const entropyPct=allNotes.length?Math.round(oldNotes.length/allNotes.length*100):0;
-  const words=diary.flatMap(x=>(x.body||'').split(/\s+/).filter(Boolean));
-  const unique=new Set(words.map(w=>w.toLowerCase())).size;
-  const richness=words.length?Math.round(unique/words.length*100):0;
-  const catActivity=CATS.map(c=>({c,st:catSt(c.id,e)})).sort((a,b)=>b.st-a.st);
-  const topCat=catActivity[0];
-  const lowCat=catActivity[catActivity.length-1];
-  const activeCats=Object.keys(notes).filter(k=>notes[k]&&notes[k].length>0);
-  const connPairs=activeCats.length>=2?`${CATS.find(x=>x.id===activeCats[0])?.name||activeCats[0]} ↔ ${CATS.find(x=>x.id===activeCats[1])?.name||activeCats[1]}`:'Regista notas em 2+ dimensões';
-
-  body.innerHTML=`
-  <style>
-    .ftool{background:rgba(0,0,0,.32);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;transition:border-color .2s}
-    .ftool:hover{border-color:rgba(123,63,228,.3)}
-    .ftool-hd{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-    .ftool-ico{font-size:26px;flex-shrink:0}
-    .ftool-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--violet);letter-spacing:.06em}
-    .ftool-sub{font-size:10px;color:var(--muted);margin-top:2px}
-    .fbar-wrap{margin:8px 0}
-    .fbar-label{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px}
-    .fbar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
-    .fbar-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.4,0,.2,1)}
-    .ftag{display:inline-flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 8px;border-radius:4px;margin:2px}
-    .ftool-input{background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:7px;color:var(--white);font-family:'Space Grotesk',sans-serif;font-size:12px;padding:7px 11px;outline:none;transition:border-color .2s;width:100%}
-    .ftool-input:focus{border-color:var(--violet)}
-    .ftool-result{background:rgba(123,63,228,.06);border:1px solid rgba(123,63,228,.2);border-radius:8px;padding:12px;margin-top:10px;font-size:12px;line-height:1.6;display:none}
-    .ftool-result.show{display:block;animation:fadeUp .3s ease}
-    .ftool-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-    .ftool-stat{background:rgba(0,0,0,.3);border-radius:8px;padding:10px;text-align:center}
-    .ftool-stat .n{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:var(--violet)}
-    .ftool-stat .l{font-size:8px;color:var(--muted);letter-spacing:.08em;margin-top:2px}
-    .ftool-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-    .fcat-bar{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)}
-    .fcat-bar:last-child{border-bottom:none}
-    .fcat-name{font-size:10px;width:90px;flex-shrink:0;color:var(--muted)}
-    .fcat-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
-    .fcat-fill{height:100%;border-radius:2px;transition:width 1s ease}
-    .fcat-val{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);width:30px;text-align:right;flex-shrink:0}
-    .deduction-tree{font-family:'JetBrains Mono',monospace;font-size:11px;line-height:2;padding:10px;background:rgba(0,0,0,.3);border-radius:7px;margin-top:8px}
-  </style>
-
-  <!-- 1. KARDASHEV -->
-  <div class="ftool">
-    <div class="ftool-hd"><div class="ftool-ico">📈</div><div><div class="ftool-title">Índice de Kardashev Pessoal</div><div class="ftool-sub">Mede o teu crescimento intelectual em tempo real com base em toda a tua actividade</div></div></div>
-    <div style="text-align:center;margin-bottom:12px">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:42px;font-weight:600;color:var(--violet);line-height:1">${k.toFixed(4)}</div>
-      <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--gold);margin-top:4px;letter-spacing:.1em">${kLvl}</div>
-    </div>
-    <div class="fbar-wrap"><div class="fbar-label"><span>K=0 Consumidor</span><span>K=1 Produtor</span><span>K=2 Civilização</span></div><div class="fbar"><div class="fbar-fill" style="width:${kPct}%;background:linear-gradient(90deg,var(--gold),var(--teal),var(--violet))"></div></div></div>
-    <div class="ftool-grid">
-      <div class="ftool-stat"><div class="n" style="color:var(--gold)">${totalSt}</div><div class="l">✦ ESTRELAS ACENDIDAS</div></div>
-      <div class="ftool-stat"><div class="n" style="color:var(--teal)">${diary.length}</div><div class="l">PUBLICAÇÕES</div></div>
-    </div>
-    <div style="font-size:10px;color:var(--muted);margin-top:10px;line-height:1.6">Para avançar de K=${k.toFixed(2)} para K=${(Math.ceil(k*10)/10).toFixed(1)} precisas de <span style="color:var(--violet)">${Math.max(0,Math.ceil((Math.ceil(k*10)/10)*1000)-totalSt)} estrelas</span> adicionais.</div>
-  </div>
-
-  <!-- 2. ANÁLISE DE ESCRITA -->
-  <div class="ftool">
-    <div class="ftool-hd"><div class="ftool-ico">🕵</div><div><div class="ftool-title">Análise de Escrita</div><div class="ftool-sub">Métricas do teu vocabulário, complexidade e evolução ao longo do tempo</div></div></div>
-    <div class="ftool-grid">
-      <div class="ftool-stat"><div class="n" style="color:var(--teal)">${words.length}</div><div class="l">PALAVRAS TOTAIS</div></div>
-      <div class="ftool-stat"><div class="n" style="color:var(--gold)">${unique}</div><div class="l">PALAVRAS ÚNICAS</div></div>
-      <div class="ftool-stat"><div class="n" style="color:var(--violet)">${richness}%</div><div class="l">RIQUEZA LEXICAL</div></div>
-      <div class="ftool-stat"><div class="n" style="color:var(--teal)">${diary.length}</div><div class="l">TEXTOS ESCRITOS</div></div>
-    </div>
-    <div class="fbar-wrap" style="margin-top:12px"><div class="fbar-label"><span>Riqueza lexical</span><span>${richness}%</span></div><div class="fbar"><div class="fbar-fill" style="width:${richness}%;background:linear-gradient(90deg,var(--teal),var(--violet))"></div></div></div>
-    <div style="font-size:10px;color:var(--muted);margin-top:8px">${richness>60?'✦ Vocabulário muito rico — estás a escrever com variedade e profundidade.':richness>35?'→ Vocabulário moderado — escreve mais para expandir o leque.':'⚠ Escreve mais no Diário para construir riqueza lexical.'}</div>
-  </div>
-
-  <!-- 3. ENTROPIA DE NOTAS -->
-  <div class="ftool">
-    <div class="ftool-hd"><div class="ftool-ico">🌡</div><div><div class="ftool-title">Entropia de Notas</div><div class="ftool-sub">Notas não revistas acumulam entropia — conhecimento que se está a dissolver</div></div></div>
-    <div class="fbar-wrap"><div class="fbar-label"><span>Entropia actual</span><span>${entropyPct}% das notas degradadas</span></div><div class="fbar"><div class="fbar-fill" style="width:${entropyPct}%;background:linear-gradient(90deg,var(--teal),var(--gold),var(--red))"></div></div></div>
-    <div class="ftool-grid">
-      <div class="ftool-stat"><div class="n" style="color:${entropyPct>50?'var(--red)':'var(--teal)'}">${oldNotes.length}</div><div class="l">NOTAS DEGRADADAS (+7d)</div></div>
-      <div class="ftool-stat"><div class="n" style="color:var(--teal)">${allNotes.length-oldNotes.length}</div><div class="l">NOTAS FRESCAS</div></div>
-    </div>
-    ${oldNotes.slice(0,4).map(n=>{const cat=Object.keys(notes).find(k=>(notes[k]||[]).some(x=>x.id===n.id));const c=CATS.find(x=>x.id===cat);return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:10px"><span style="color:var(--red);font-size:14px">⚡</span><span style="flex:1;color:var(--muted)">${esc(n.text.slice(0,60))}...</span><span style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--muted)">${c?c.name:''}</span></div>`;}).join('')}
-    ${oldNotes.length>4?`<div style="font-size:10px;color:var(--muted);margin-top:6px">+${oldNotes.length-4} notas adicionais a degradar-se</div>`:''}
-  </div>
-
-  <!-- 4. DETECTOR DE VIÉS -->
-  <div class="ftool">
-    <div class="ftool-hd"><div class="ftool-ico">🔍</div><div><div class="ftool-title">Detector de Viés Cognitivo</div><div class="ftool-sub">A tua distribuição de atenção revela os teus vieses inconscientes</div></div></div>
-    <div style="margin-top:4px">${catActivity.slice(0,8).map(({c,st})=>{const maxSt=catActivity[0].st||1;return`<div class="fcat-bar"><div class="fcat-name">${c.icon} ${c.name}</div><div class="fcat-track"><div class="fcat-fill" style="width:${st/maxSt*100}%;background:${c.color}"></div></div><div class="fcat-val">${st}✦</div></div>`;}).join('')}</div>
-    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-      ${topCat&&topCat.st>0?`<span class="ftag" style="background:rgba(201,168,76,.1);color:var(--gold);border:1px solid rgba(201,168,76,.2)">⚠ Viés para ${topCat.c.name}</span>`:''}
-      ${lowCat&&lowCat.st===0?`<span class="ftag" style="background:rgba(232,69,60,.08);color:var(--red);border:1px solid rgba(232,69,60,.2)">Negliges ${lowCat.c.name}</span>`:''}
-      <span class="ftag" style="background:rgba(0,229,204,.08);color:var(--teal);border:1px solid rgba(0,229,204,.2)">${new Set(e.map(x=>x.cat)).size} dimensões activas</span>
-    </div>
-  </div>
-
-  <!-- 5. MOTOR DE INFERÊNCIA -->
-  <div class="ftool">
-    <div class="ftool-hd"><div class="ftool-ico">🔮</div><div><div class="ftool-title">Motor de Inferência</div><div class="ftool-sub">Detecta conexões latentes entre as tuas notas de categorias diferentes</div></div></div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Conexão detectada entre:</div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--violet);text-align:center;padding:12px;background:rgba(123,63,228,.06);border-radius:8px;border:1px solid rgba(123,63,228,.15)">${connPairs}</div>
-    <div style="font-size:10px;color:var(--muted);margin-top:8px">Baseado em ${activeCats.length} dimensões com notas activas. Adiciona notas em mais dimensões para descobrir mais conexões.</div>
-    <button onclick="inferMore()" style="margin-top:10px;background:rgba(123,63,228,.1);border:1px solid rgba(123,63,228,.3);border-radius:7px;color:var(--violet);cursor:pointer;font-size:11px;padding:5px 14px;transition:all .2s" onmouseover="this.style.background='rgba(123,63,228,.2)'" onmouseout="this.style.background='rgba(123,63,228,.1)'">🔮 Nova inferência aleatória</button>
-    <div id="inferResult" class="ftool-result"></div>
-  </div>
-
-  <!-- 6. MODO FEYNMAN -->
-  <div class="ftool">
-    <div class="ftool-hd"><div class="ftool-ico">🧠</div><div><div class="ftool-title">Modo Feynman</div><div class="ftool-sub">Se não consegues explicar simplesmente, ainda não percebeste. Escreve como se a criança de 12 anos.</div></div></div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <input class="ftool-input" id="feynConcept" placeholder="Conceito a explicar (ex: CRISPR, Buraco Negro, Teorema de Gödel...)">
-      <textarea class="ftool-input" id="feynText" rows="3" placeholder="A tua explicação simples, sem termos técnicos..." style="resize:none"></textarea>
-      <button onclick="runFeynman()" style="background:linear-gradient(135deg,var(--violet),#3d1090);border:none;border-radius:7px;color:#fff;cursor:pointer;font-size:11px;font-weight:600;padding:7px 16px;align-self:flex-start">Avaliar clareza</button>
-    </div>
-    <div id="feynResult" class="ftool-result"></div>
-  </div>
-
-  <!-- 7. MOTOR DE DEDUÇÃO -->
-  <div class="ftool">
-    <div class="ftool-hd"><div class="ftool-ico">⚙</div><div><div class="ftool-title">Motor de Dedução Lógica</div><div class="ftool-sub">Define premissas, o sistema constrói a árvore de derivação e tenta concluir por Modus Ponens</div></div></div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <input class="ftool-input" id="ded1" placeholder="Premissa 1: Todos os X são Y">
-      <input class="ftool-input" id="ded2" placeholder="Premissa 2: Z é X">
-      <button onclick="runDeducao()" style="background:linear-gradient(135deg,var(--teal),#007a6e);border:none;border-radius:7px;color:#000;cursor:pointer;font-size:11px;font-weight:600;padding:7px 16px;align-self:flex-start">Deduzir</button>
-    </div>
-    <div id="dedResult" class="ftool-result"></div>
-  </div>
-
-  <!-- 8. DEBUGGER DE ARGUMENTOS -->
-  <div class="ftool">
-    <div class="ftool-hd"><div class="ftool-ico">🧬</div><div><div class="ftool-title">Debugger de Argumentos</div><div class="ftool-sub">Cola um argumento científico — o sistema detecta falácias lógicas e pontos fracos</div></div></div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <textarea class="ftool-input" id="argText" rows="3" placeholder="Cola o teu argumento aqui..." style="resize:none"></textarea>
-      <button onclick="runDebugArg()" style="background:linear-gradient(135deg,var(--gold),#7a4a10);border:none;border-radius:7px;color:#000;cursor:pointer;font-size:11px;font-weight:600;padding:7px 16px;align-self:flex-start">Analisar</button>
-    </div>
-    <div id="argResult" class="ftool-result"></div>
-  </div>
-
-  <!-- 9. SIMULADOR DE DIFUSÃO -->
-  <div class="ftool">
-    <div class="ftool-hd"><div class="ftool-ico">📡</div><div><div class="ftool-title">Simulador de Difusão de Ideias</div><div class="ftool-sub">Modela como uma ideia tua se propagaria numa rede científica usando equações de difusão SIR</div></div></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
-      <div class="fld"><label style="font-size:8px;color:var(--muted);letter-spacing:.1em">REDE (nós)</label><input class="ftool-input" type="number" id="difN" value="200" style="width:100%"></div>
-      <div class="fld"><label style="font-size:8px;color:var(--muted);letter-spacing:.1em">R₀ (0-1)</label><input class="ftool-input" type="number" id="difR" value="0.4" step="0.05" min="0" max="1" style="width:100%"></div>
-      <div class="fld"><label style="font-size:8px;color:var(--muted);letter-spacing:.1em">IDEIA</label><input class="ftool-input" id="difIdea" placeholder="Ex: CRISPR"></div>
-    </div>
-    <button onclick="runDifusao()" style="background:linear-gradient(135deg,#00C896,#007a6e);border:none;border-radius:7px;color:#000;cursor:pointer;font-size:11px;font-weight:600;padding:7px 16px">Simular propagação</button>
-    <div id="difResult" class="ftool-result"></div>
-    <canvas id="difCanvas" width="500" height="80" style="display:none;margin-top:10px;width:100%;border-radius:7px;background:rgba(0,0,0,.3)"></canvas>
-  </div>
-
-  <!-- 10. KOLMOGOROV -->
-  <div class="ftool">
-    <div class="ftool-hd"><div class="ftool-ico">🧮</div><div><div class="ftool-title">Complexidade de Kolmogorov</div><div class="ftool-sub">Estima a densidade de informação das tuas ideias — distingue o genuinamente original do derivado</div></div></div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <textarea class="ftool-input" id="kolText" rows="3" placeholder="Descreve uma ideia tua o mais sucintamente possível..." style="resize:none"></textarea>
-      <button onclick="runKolmogorov()" style="background:linear-gradient(135deg,var(--anime),#9a1a5a);border:none;border-radius:7px;color:#fff;cursor:pointer;font-size:11px;font-weight:600;padding:7px 16px;align-self:flex-start">Calcular complexidade</button>
-    </div>
-    <div id="kolResult" class="ftool-result"></div>
-  </div>`;
-}
 
 function inferMore(){
   const notes=DB.notes();const activeCats=Object.keys(notes).filter(k=>notes[k]&&notes[k].length>0);
@@ -918,7 +756,7 @@ function runFeynman(){
   const el=document.getElementById('feynResult');
   el.innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
     <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:${score>70?'var(--teal)':score>40?'var(--gold)':'var(--red)'}">${score}<span style="font-size:14px">/100</span></div>
-    <div><div style="font-weight:600;color:${score>70?'var(--teal)':score>40?'var(--gold)':'var(--red)'}">${score>70?'Feynman aprovaria':'Ainda demasiado técnico':score>40?'No caminho certo — simplifica mais':'Volta ao início — explica como se 5 anos'}</div><div style="font-size:10px;color:var(--muted);margin-top:3px">${complexWords} palavras longas · ${totalWords} palavras totais · ${sentences} frases</div></div></div>
+    <div><div style="font-weight:600;color:${score>70?'var(--teal)':score>40?'var(--gold)':'var(--red)'}">${score>70?'Feynman aprovaria':score>40?'No caminho certo — simplifica mais':'Volta ao início — explica como se 5 anos'}</div><div style="font-size:10px;color:var(--muted);margin-top:3px">${complexWords} palavras longas · ${totalWords} palavras totais · ${sentences} frases</div></div></div>
   <div class="fbar"><div class="fbar-fill" style="width:${score}%;background:${score>70?'var(--teal)':score>40?'var(--gold)':'var(--red)'}"></div></div>
   ${complexWords>0?`<div style="font-size:10px;color:var(--muted);margin-top:8px">Reduz palavras com mais de 9 letras — cada uma custa 6 pontos.</div>`:'<div style="font-size:10px;color:var(--teal);margin-top:8px">✓ Vocabulário acessível detectado!</div>'}`;
   el.classList.add('show');
@@ -983,7 +821,7 @@ function runKolmogorov(){
   const el=document.getElementById('kolResult');
   el.innerHTML=`<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">
     <div style="font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:var(--anime)">${score}<span style="font-size:12px"> K-bits</span></div>
-    <div><div style="font-weight:600;color:${score>30?'var(--teal)':score>15?'var(--gold)':'var(--muted)'}">${score>30?'Alta originalidade':'score>15?Densidade moderada':'Ideia derivada ou comprimível'}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${chars} chars · ${unique} termos únicos · ~${compressed} bytes comprimidos</div></div></div>
+    <div><div style="font-weight:600;color:${score>30?'var(--teal)':score>15?'var(--gold)':'var(--muted)'}">${score>30?'Alta originalidade':score>15?'Densidade moderada':'Ideia derivada ou comprimível'}</div><div style="font-size:10px;color:var(--muted);margin-top:2px">${chars} chars · ${unique} termos únicos · ~${compressed} bytes comprimidos</div></div></div>
   <div class="fbar-wrap"><div class="fbar-label"><span>Derivada</span><span>Moderada</span><span>Original</span></div><div class="fbar"><div class="fbar-fill" style="width:${Math.min(100,score*2)}%;background:linear-gradient(90deg,var(--muted),var(--gold),var(--teal))"></div></div></div>
   <div style="font-size:10px;color:var(--muted);margin-top:8px">${score>30?'✦ Ideia densa e difícil de comprimir — sinal de originalidade genuína.':score>15?'→ Ideia com conteúdo moderado. Aprofunda com mais especificidade.':'⚠ Ideia muito comprimível. Pode ser reformulação de algo existente — vai mais fundo.'}</div>`;
   el.classList.add('show');
