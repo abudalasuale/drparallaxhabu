@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dr. Parallax Habu · Campo Quântico</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000;--s1:#080808;--s2:#0f0f0f;--s3:#161616;--s4:#1e1e1e;
+  --b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);--b3:rgba(255,255,255,.18);
+  --gold:#c9a84c;--gold2:rgba(201,168,76,.12);--gold3:rgba(201,168,76,.06);
+  --teal:#00e5cc;--teal2:rgba(0,229,204,.1);
+  --vio:#7b3fe4;--vio2:rgba(123,63,228,.1);
+  --red:#e8453c;--red2:rgba(232,69,60,.1);
+  --pink:#ff6b9d;--pink2:rgba(255,107,157,.1);
+  --w:#f2f2f2;--w2:#999;--w3:#444;--w4:#2a2a2a
+}
+html,body{height:100%;background:var(--bg);color:var(--w);overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif}
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* VIEWS */
+#loginView,#appView{position:fixed;inset:0;z-index:1;transition:opacity .4s cubic-bezier(.4,0,.2,1)}
+#loginView.hidden,#appView.hidden{opacity:0;pointer-events:none;display:none}
+
+/* ════ LOGIN ════ */
+#loginView{display:grid;grid-template-columns:1fr 1fr}
+.l-left{display:flex;flex-direction:column;justify-content:space-between;padding:36px 52px;border-right:1px solid var(--b);position:relative;overflow:hidden}
+.l-glow{position:absolute;top:25%;left:5%;width:500px;height:500px;background:radial-gradient(circle,rgba(201,168,76,.055) 0%,transparent 65%);pointer-events:none;border-radius:50%}
+.l-glow2{position:absolute;bottom:5%;right:-10%;width:380px;height:380px;background:radial-gradient(circle,rgba(123,63,228,.04) 0%,transparent 65%);pointer-events:none;border-radius:50%}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:32px;height:32px;border-radius:9px;background:radial-gradient(circle at 35% 35%,#1e1505,#0a0803);border:1px solid rgba(201,168,76,.25);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.brand-icon::after{content:'';position:absolute;inset:-3px;border-radius:12px;border:1px solid rgba(201,168,76,.07)}
+.brand-icon svg{width:15px;height:15px}
+.brand-name{font-size:11px;font-weight:700;letter-spacing:.22em;color:rgba(201,168,76,.6);text-transform:uppercase}
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;padding:48px 0}
+.hero-eyebrow{font-size:9px;letter-spacing:.28em;color:var(--w3);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.hero-eyebrow::after{content:'';flex:0 0 24px;height:1px;background:var(--w4)}
+.hero-title{font-size:52px;font-weight:700;line-height:.92;letter-spacing:-.03em;color:var(--w);margin-bottom:22px}
+.hero-title em{color:var(--gold);font-style:normal;display:block}
+.hero-desc{font-size:14px;color:var(--w2);line-height:1.7;max-width:320px;font-weight:300}
+.hero-stats{display:flex;gap:32px;margin-top:44px}
+.hstat-n{font-size:24px;font-weight:700;color:var(--w);letter-spacing:-.02em;line-height:1}
+.hstat-l{font-size:9px;color:var(--w3);letter-spacing:.14em;text-transform:uppercase;margin-top:3px}
+.l-footer{font-size:10px;color:var(--w4);letter-spacing:.05em}
+.l-right{display:flex;align-items:center;justify-content:center;padding:36px 52px}
+.auth-box{width:100%;max-width:340px}
+.tabs{display:flex;background:var(--s1);border:1px solid var(--b);border-radius:10px;padding:3px;margin-bottom:24px}
+.tab{flex:1;padding:8px 0;font-size:12px;font-weight:500;color:var(--w3);text-align:center;cursor:pointer;border-radius:7px;transition:all .2s;border:none;background:none;letter-spacing:.04em;font-family:inherit}
+.tab.on{background:var(--s3);color:var(--w);border:1px solid var(--b2)}
+.auth-title{font-size:20px;font-weight:700;color:var(--w);letter-spacing:-.02em;margin-bottom:4px}
+.auth-sub{font-size:12px;color:var(--w3);margin-bottom:22px;line-height:1.5}
+.field{margin-bottom:12px}
+.field-lbl{display:block;font-size:9px;letter-spacing:.15em;color:var(--w3);text-transform:uppercase;margin-bottom:6px;transition:color .2s}
+.field:focus-within .field-lbl{color:rgba(201,168,76,.55)}
+.field-wrap{position:relative}
+.field input{width:100%;background:var(--s1);border:1px solid var(--b);border-radius:9px;padding:11px 14px;font-size:13px;color:var(--w);outline:none;transition:all .2s;font-family:inherit}
+.field input::placeholder{color:var(--w4)}
+.field input:focus{border-color:rgba(201,168,76,.3);background:var(--gold3);box-shadow:0 0 0 3px rgba(201,168,76,.05)}
+.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--w3);fill:none;stroke-width:1.5;stroke-linecap:round;cursor:pointer;transition:stroke .2s}
+.eye:hover{stroke:var(--w2)}
+.forgot{text-align:right;margin:-2px 0 14px}
+.forgot a{font-size:11px;color:var(--w3);text-decoration:none;transition:color .2s}
+.forgot a:hover{color:var(--gold)}
+.err-box{font-size:11px;color:#ff6b6b;background:var(--red2);border:1px solid rgba(232,69,60,.18);border-radius:7px;padding:9px 12px;margin-bottom:12px;display:none;line-height:1.45}
+.err-box.on{display:block}
+.btn{width:100%;padding:12px;border:none;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:.05em;cursor:pointer;transition:all .22s;position:relative;overflow:hidden;font-family:inherit}
+.btn-gold{background:linear-gradient(135deg,rgba(201,168,76,.95),rgba(130,90,15,.85));color:#000}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(201,168,76,.22)}
+.btn-gold:active{transform:translateY(0)}
+.btn-gold.busy{opacity:.6;pointer-events:none}
+.btn-gold.busy::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);animation:sh .7s infinite}
+@keyframes sh{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.auth-panel{display:none;text-align:center;padding:6px 0}
+.auth-panel.on{display:block}
+.ap-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.ap-icon svg{width:22px;height:22px;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ap-title{font-size:18px;font-weight:700;color:var(--w);margin-bottom:8px;letter-spacing:-.01em}
+.ap-body{font-size:13px;color:var(--w2);line-height:1.6;margin-bottom:14px}
+.ap-email{font-size:11px;color:var(--gold);background:var(--gold3);border:1px solid rgba(201,168,76,.14);border-radius:6px;padding:5px 12px;display:inline-block;margin-bottom:18px;letter-spacing:.04em}
+.link-btn{font-size:11px;color:var(--w3);cursor:pointer;background:none;border:none;font-family:inherit;transition:color .2s}
+.link-btn span{color:var(--teal)}
+.link-btn:hover{color:var(--w2)}
+.auth-note{margin-top:20px;text-align:center;font-size:10px;color:var(--w4)}
+.auth-note a{color:rgba(201,168,76,.35);text-decoration:none}
+
+/* ════ APP ════ */
+#appView{display:flex}
+.side{width:62px;background:var(--s1);border-right:1px solid var(--b);display:flex;flex-direction:column;align-items:center;padding:18px 0 16px;gap:1px;flex-shrink:0;z-index:20}
+.s-logo{width:34px;height:34px;border-radius:9px;background:radial-gradient(circle at 35% 35%,#1e1505,#0a0803);border:1px solid rgba(201,168,76,.25);display:flex;align-items:center;justify-content:center;margin-bottom:18px;position:relative;cursor:pointer;flex-shrink:0}
+.s-logo::after{content:'';position:absolute;inset:-3px;border-radius:12px;border:1px solid rgba(201,168,76,.07)}
+.s-logo svg{width:15px;height:15px}
+.si{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .18s;flex-shrink:0}
+.si:hover{background:rgba(255,255,255,.04)}
+.si.on{background:rgba(255,255,255,.06)}
+.si.on::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:2.5px;height:18px;background:var(--gold);border-radius:2px 0 0 2px;box-shadow:0 0 8px rgba(201,168,76,.35)}
+.si svg{width:18px;height:18px;stroke:var(--w3);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:all .18s}
+.si.on svg,.si:hover svg{stroke:rgba(255,255,255,.75)}
+.si .ndot{position:absolute;top:9px;right:9px;width:5px;height:5px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg)}
+.sdiv{width:24px;height:1px;background:var(--b);margin:6px 0;flex-shrink:0}
+.s-bot{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:8px}
+.s-av-wrap{position:relative;cursor:pointer}
+.s-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;background:linear-gradient(135deg,var(--gold),#7a4a10)}
+.s-av-ring{position:absolute;inset:-2px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--vio),var(--teal));z-index:-1}
+
+.main{flex:1;display:flex;overflow:hidden;position:relative}
+.section{position:absolute;inset:0;display:flex;overflow:hidden;opacity:0;pointer-events:none;transform:translateX(10px);transition:opacity .28s cubic-bezier(.4,0,.2,1),transform .28s cubic-bezier(.4,0,.2,1)}
+.section.on{opacity:1;pointer-events:all;transform:translateX(0)}
+
+/* shared */
+.col-scroll{overflow-y:auto;height:100%}
+.col-scroll::-webkit-scrollbar{width:0}
+.col-head{padding:14px 18px 13px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:rgba(0,0,0,.88);backdrop-filter:blur(24px);z-index:10}
+.col-head-title{font-size:16px;font-weight:700;color:var(--w);flex:1;letter-spacing:-.02em}
+.col-head-sub{font-size:11px;color:var(--w3);flex:1;margin-top:1px}
+.ic-btn{width:30px;height:30px;border-radius:50%;background:var(--s2);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0}
+.ic-btn:hover{background:var(--s3);border-color:var(--b2)}
+.ic-btn svg{width:14px;height:14px;stroke:var(--w2);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* feed */
+.feed-col{flex:1;border-right:1px solid var(--b)}
+.dims-row{display:flex;gap:12px;padding:14px 18px;overflow-x:auto;border-bottom:1px solid var(--b)}
+.dims-row::-webkit-scrollbar{height:0}
+.dim{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;position:relative}
+.dim-ring{width:50px;height:50px;border-radius:14px;padding:1.5px;background:linear-gradient(135deg,var(--gold),var(--vio),var(--teal))}
+.dim-ring.cold{background:linear-gradient(135deg,var(--w3),var(--w4))}
+.dim-inner{width:100%;height:100%;border-radius:12.5px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:18px;border:1.5px solid var(--bg)}
+.dim-name{font-size:9px;color:var(--w2);text-align:center;max-width:54px;line-height:1.3}
+.dim-badge{position:absolute;top:-3px;right:-3px;background:var(--gold);border-radius:20px;font-size:7px;font-weight:700;color:#000;padding:1px 4px;border:1.5px solid var(--bg)}
+
+/* post */
+.post{padding:16px 18px;border-bottom:1px solid var(--b);transition:background .15s;cursor:pointer}
+.post:hover{background:rgba(255,255,255,.012)}
+.ph{display:flex;align-items:flex-start;gap:11px;margin-bottom:11px}
+.pav{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;position:relative}
+.pmeta{flex:1;min-width:0}
+.puser{font-size:13px;font-weight:600;color:var(--w);letter-spacing:-.01em;line-height:1}
+.puser span{font-weight:400;color:var(--w3);font-size:11px}
+.pdim{font-size:11px;color:var(--w3);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.pdot{width:3px;height:3px;border-radius:50%;background:var(--w3);flex-shrink:0}
+.ptime{font-size:11px;color:var(--w3);flex-shrink:0}
+.ptag{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:.1em;padding:3px 9px;border-radius:20px;margin-bottom:10px;text-transform:uppercase}
+.t-h{background:rgba(232,69,60,.08);color:#ff6b6b;border:1px solid rgba(232,69,60,.2)}
+.t-p{background:var(--vio2);color:#a07ae0;border:1px solid rgba(123,63,228,.2)}
+.t-d{background:var(--teal2);color:var(--teal);border:1px solid rgba(0,229,204,.2)}
+.t-s{background:var(--gold3);color:var(--gold);border:1px solid rgba(201,168,76,.2)}
+.t-e{background:var(--pink2);color:var(--pink);border:1px solid rgba(255,107,157,.2)}
+.pbody{font-size:13px;color:rgba(242,242,242,.82);line-height:1.65;margin-bottom:13px}
+.pbody strong{color:var(--w);font-weight:600}
+.pbody em{color:var(--gold);font-style:normal}
+.pbody code{font-family:'SF Mono',monospace;font-size:11px;background:var(--s3);border:1px solid var(--b2);border-radius:4px;padding:1px 5px;color:var(--teal)}
+.pact{display:flex;align-items:center;gap:2px}
+.act{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:8px;cursor:pointer;transition:all .18s;border:1px solid transparent;background:none;font-family:inherit}
+.act:hover{background:rgba(255,255,255,.04);border-color:var(--b)}
+.act svg{width:15px;height:15px;stroke:var(--w3);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:all .18s}
+.act span{font-size:11px;color:var(--w3);font-weight:500;transition:color .18s}
+.act.boson-on svg{stroke:var(--gold);fill:rgba(201,168,76,.12)}
+.act.boson-on span{color:var(--gold)}
+.act.anti-on svg{stroke:var(--red);fill:var(--red2)}
+.act.anti-on span{color:var(--red)}
+.act:hover svg{stroke:var(--w2)}
+.act:hover span{color:var(--w2)}
+.act.boson-on:hover svg{stroke:var(--gold)}
+.act.anti-on:hover svg{stroke:var(--red)}
+.act-div{width:1px;height:14px;background:var(--b2);margin:0 2px;flex-shrink:0}
+.act-sp{flex:1}
+
+/* right panel */
+.r-panel{width:250px;background:var(--s1);overflow-y:auto;flex-shrink:0}
+.r-panel::-webkit-scrollbar{width:0}
+.rp{padding:18px}
+.rp-sec{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--b)}
+.rp-sec:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.rp-lbl{font-size:9px;color:var(--w3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px}
+.rp-av-row{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.rp-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#7a4a10);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;position:relative;flex-shrink:0}
+.rp-av::after{content:'';position:absolute;inset:-2px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--vio),var(--teal));z-index:-1}
+.rp-name{font-size:13px;font-weight:700;color:var(--w);letter-spacing:-.01em}
+.rp-handle{font-size:10px;color:var(--w3);margin-top:1px}
+.rp-badge{display:inline-flex;align-items:center;gap:3px;font-size:8px;font-weight:700;letter-spacing:.1em;color:var(--gold);background:var(--gold3);border:1px solid rgba(201,168,76,.16);border-radius:20px;padding:2px 7px;margin-top:5px}
+.metric{display:flex;align-items:baseline;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--b)}
+.metric:last-child{border-bottom:none}
+.metric-lbl{font-size:11px;color:var(--w3);display:flex;align-items:center;gap:5px}
+.metric-lbl svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;opacity:.55}
+.metric-val{font-size:13px;font-weight:700;color:var(--w);letter-spacing:-.01em}
+.metric-val small{font-size:10px;font-weight:400;color:var(--w3);margin-left:2px}
+.k-val{font-size:26px;font-weight:700;color:var(--gold);letter-spacing:-.02em;line-height:1;margin-bottom:3px}
+.k-desc{font-size:10px;color:var(--w3);line-height:1.45;margin-bottom:10px}
+.k-bar{height:2px;background:var(--b2);border-radius:1px;overflow:hidden}
+.k-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--teal));border-radius:1px}
+.su{display:flex;align-items:center;gap:9px;padding:7px 0}
+.su+.su{border-top:1px solid var(--b)}
+.su-av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.su-name{font-size:12px;font-weight:600;color:var(--w);line-height:1.2}
+.su-dim{font-size:10px;color:var(--w3)}
+.su-btn{font-size:10px;font-weight:600;color:var(--teal);cursor:pointer;padding:3px 9px;border:1px solid rgba(0,229,204,.2);border-radius:20px;transition:all .18s;white-space:nowrap;background:none;font-family:inherit}
+.su-btn:hover{background:var(--teal2)}
+.su-btn.following{color:var(--w3);border-color:var(--b)}
+.tr{padding:7px 0;cursor:pointer}
+.tr+.tr{border-top:1px solid var(--b)}
+.tr-tag{font-size:11px;font-weight:600;color:var(--w);transition:color .15s}
+.tr:hover .tr-tag{color:var(--teal)}
+.tr-sub{font-size:10px;color:var(--w3);margin-top:2px;display:flex;align-items:center;gap:5px}
+.live{width:5px;height:5px;border-radius:50%;background:var(--red);display:inline-block;animation:pulse 1.4s ease infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.6)}}
+
+/* ── EXPLORE ── */
+.explore-wrap{flex:1;display:flex;flex-direction:column}
+.search-bar{padding:14px 18px;border-bottom:1px solid var(--b);position:sticky;top:0;background:rgba(0,0,0,.88);backdrop-filter:blur(24px);z-index:10}
+.search-input-wrap{position:relative}
+.search-input-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--w3);fill:none;stroke-width:1.6;stroke-linecap:round}
+.search-input{width:100%;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 14px 10px 36px;font-size:13px;color:var(--w);outline:none;transition:all .2s;font-family:inherit}
+.search-input:focus{border-color:rgba(201,168,76,.3);background:var(--gold3)}
+.search-input::placeholder{color:var(--w4)}
+.filter-pills{display:flex;gap:6px;padding:12px 18px;overflow-x:auto;border-bottom:1px solid var(--b)}
+.filter-pills::-webkit-scrollbar{height:0}
+.pill{padding:5px 13px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--b);color:var(--w3);background:none;transition:all .18s;white-space:nowrap;font-family:inherit}
+.pill.on{border-color:var(--gold);color:var(--gold);background:var(--gold3)}
+
+/* ── HERESIAS / PARADOXOS ── */
+.hp-wrap{flex:1;display:flex;flex-direction:column}
+.hp-header{padding:20px 24px;border-bottom:1px solid var(--b);background:linear-gradient(180deg,rgba(232,69,60,.04) 0%,transparent 100%)}
+.hp-header.paradox{background:linear-gradient(180deg,rgba(123,63,228,.04) 0%,transparent 100%)}
+.hp-title{font-size:22px;font-weight:700;color:var(--w);letter-spacing:-.02em;margin-bottom:4px}
+.hp-sub{font-size:12px;color:var(--w2);line-height:1.5}
+.hp-stats{display:flex;gap:24px;margin-top:16px}
+.hps{display:flex;flex-direction:column;gap:2px}
+.hps-n{font-size:20px;font-weight:700;color:var(--w);letter-spacing:-.02em}
+.hps-l{font-size:9px;color:var(--w3);letter-spacing:.12em;text-transform:uppercase}
+.hp-list{flex:1;overflow-y:auto}
+.hp-list::-webkit-scrollbar{width:0}
+.hp-item{padding:18px 24px;border-bottom:1px solid var(--b);cursor:pointer;transition:background .15s}
+.hp-item:hover{background:rgba(255,255,255,.012)}
+.hp-item-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.hp-rank{font-size:11px;font-weight:700;color:var(--w3);width:20px;flex-shrink:0;margin-top:2px}
+.hp-item-title{font-size:14px;font-weight:600;color:var(--w);letter-spacing:-.01em;line-height:1.3;flex:1}
+.hp-item-body{font-size:12px;color:var(--w2);line-height:1.6;margin-bottom:12px;padding-left:32px}
+.hp-item-foot{display:flex;align-items:center;gap:12px;padding-left:32px}
+.hp-foot-av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff;flex-shrink:0}
+.hp-foot-name{font-size:11px;color:var(--w3)}
+.hp-foot-actions{display:flex;gap:8px;margin-left:auto}
+.hp-act{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--w3);cursor:pointer;padding:3px 8px;border-radius:6px;border:1px solid transparent;background:none;font-family:inherit;transition:all .15s}
+.hp-act:hover{background:rgba(255,255,255,.04);border-color:var(--b);color:var(--w2)}
+.hp-act svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round}
+.hp-act.voted{color:var(--gold)}
+
+/* ── DIMENSÕES ── */
+.dims-wrap{flex:1;overflow-y:auto}
+.dims-wrap::-webkit-scrollbar{width:0}
+.dims-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--b);margin:1px}
+.dim-card{background:var(--bg);padding:22px;cursor:pointer;transition:background .18s;position:relative;overflow:hidden}
+.dim-card:hover{background:var(--s1)}
+.dim-card-glow{position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;opacity:.06;pointer-events:none}
+.dim-card-emoji{font-size:28px;margin-bottom:12px;display:block}
+.dim-card-name{font-size:16px;font-weight:700;color:var(--w);letter-spacing:-.01em;margin-bottom:4px}
+.dim-card-desc{font-size:12px;color:var(--w3);line-height:1.5;margin-bottom:14px}
+.dim-card-bar{height:2px;background:var(--b2);border-radius:1px;overflow:hidden;margin-bottom:8px}
+.dim-card-fill{height:100%;border-radius:1px}
+.dim-card-stats{display:flex;gap:16px}
+.dim-card-stat{font-size:10px;color:var(--w3)}
+.dim-card-stat strong{color:var(--w);font-size:13px;font-weight:700;display:block;letter-spacing:-.01em}
+
+/* ── SOCIAL / EXPLORADORES ── */
+.social-wrap{flex:1;display:flex;flex-direction:column}
+.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1px;background:var(--b);flex:1;overflow-y:auto;align-content:start}
+.user-grid::-webkit-scrollbar{width:0}
+.user-card{background:var(--bg);padding:20px;cursor:pointer;transition:background .18s;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.user-card:hover{background:var(--s1)}
+.uc-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;position:relative;flex-shrink:0}
+.uc-av-ring{position:absolute;inset:-2px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--vio),var(--teal));z-index:-1}
+.uc-name{font-size:13px;font-weight:700;color:var(--w);letter-spacing:-.01em}
+.uc-handle{font-size:11px;color:var(--w3)}
+.uc-dims{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.uc-dim-tag{font-size:9px;color:var(--w3);border:1px solid var(--b);border-radius:10px;padding:2px 7px}
+.uc-stats{display:flex;gap:16px;font-size:10px;color:var(--w3)}
+.uc-stats strong{color:var(--w);font-size:12px;font-weight:700;display:block}
+.uc-follow{padding:6px 18px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid rgba(0,229,204,.25);color:var(--teal);background:none;cursor:pointer;transition:all .18s;font-family:inherit}
+.uc-follow:hover{background:var(--teal2)}
+.uc-follow.following{color:var(--w3);border-color:var(--b)}
+
+/* ── ORÁCULO ── */
+.oraculo-wrap{flex:1;display:flex;flex-direction:column}
+.oracle-hero{padding:28px 24px;border-bottom:1px solid var(--b);background:linear-gradient(180deg,rgba(123,63,228,.05) 0%,transparent 100%);text-align:center}
+.oracle-symbol{font-size:40px;margin-bottom:12px;display:block}
+.oracle-title{font-size:20px;font-weight:700;color:var(--w);margin-bottom:6px;letter-spacing:-.02em}
+.oracle-sub{font-size:13px;color:var(--w2);line-height:1.6;max-width:480px;margin:0 auto}
+.oracle-ask{padding:18px 24px;border-bottom:1px solid var(--b)}
+.oracle-input{width:100%;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--w);outline:none;font-family:inherit;resize:none;line-height:1.6;transition:border-color .2s}
+.oracle-input:focus{border-color:rgba(123,63,228,.35)}
+.oracle-input::placeholder{color:var(--w4)}
+.oracle-foot{display:flex;justify-content:flex-end;margin-top:10px}
+.btn-vio{padding:8px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,rgba(123,63,228,.8),rgba(60,15,140,.7));color:var(--w);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-vio:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(123,63,228,.25)}
+.oracle-list{flex:1;overflow-y:auto}
+.oracle-list::-webkit-scrollbar{width:0}
+.oracle-item{padding:18px 24px;border-bottom:1px solid var(--b)}
+.oi-q{font-size:14px;font-weight:600;color:var(--w);margin-bottom:8px;letter-spacing:-.01em}
+.oi-meta{font-size:10px;color:var(--w3);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.oi-answers{display:flex;flex-direction:column;gap:8px}
+.oi-answer{background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--w2);line-height:1.5}
+.oi-answer-head{font-size:11px;font-weight:600;color:var(--w);margin-bottom:4px}
+.oi-reply-btn{font-size:11px;color:var(--vio);cursor:pointer;background:none;border:none;font-family:inherit;margin-top:10px;padding:0}
+.oi-reply-btn:hover{color:#a07ae0}
+
+/* ── NOTIFICAÇÕES ── */
+.notif-wrap{flex:1;overflow-y:auto}
+.notif-wrap::-webkit-scrollbar{width:0}
+.notif-item{display:flex;align-items:flex-start;gap:12px;padding:14px 20px;border-bottom:1px solid var(--b);cursor:pointer;transition:background .15s}
+.notif-item:hover{background:rgba(255,255,255,.012)}
+.notif-item.unread{background:rgba(201,168,76,.03)}
+.ni-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ni-icon svg{width:16px;height:16px;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ni-body{flex:1}
+.ni-text{font-size:13px;color:var(--w2);line-height:1.5}
+.ni-text strong{color:var(--w);font-weight:600}
+.ni-time{font-size:10px;color:var(--w3);margin-top:3px}
+.ni-unread-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:6px}
+
+/* ── PERFIL ── */
+.profile-wrap{flex:1;overflow-y:auto}
+.profile-wrap::-webkit-scrollbar{width:0}
+.profile-header{padding:28px 28px 20px;border-bottom:1px solid var(--b);position:relative;overflow:hidden}
+.profile-bg-glow{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:400px;height:300px;background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none;border-radius:50%}
+.profile-top{display:flex;align-items:flex-end;gap:20px;margin-bottom:16px;position:relative;z-index:1}
+.profile-av-big{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#000;background:linear-gradient(135deg,var(--gold),#7a4a10);position:relative;flex-shrink:0}
+.profile-av-big::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--vio),var(--teal));z-index:-1}
+.profile-info{flex:1}
+.profile-name{font-size:22px;font-weight:700;color:var(--w);letter-spacing:-.02em;line-height:1.1}
+.profile-handle{font-size:13px;color:var(--w3);margin-top:3px}
+.profile-badge-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.profile-badge{font-size:9px;font-weight:700;letter-spacing:.1em;padding:2px 8px;border-radius:20px}
+.pb-owner{color:var(--gold);background:var(--gold3);border:1px solid rgba(201,168,76,.2)}
+.pb-role{color:var(--teal);background:var(--teal2);border:1px solid rgba(0,229,204,.2)}
+.profile-bio{font-size:13px;color:var(--w2);line-height:1.6;margin-bottom:16px;position:relative;z-index:1;max-width:520px}
+.profile-metrics{display:flex;gap:0;border-top:1px solid var(--b);padding-top:16px;position:relative;z-index:1}
+.pm{flex:1;text-align:center;padding:0 12px;border-right:1px solid var(--b)}
+.pm:last-child{border-right:none}
+.pm-n{font-size:20px;font-weight:700;color:var(--w);letter-spacing:-.02em;line-height:1}
+.pm-l{font-size:9px;color:var(--w3);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+.profile-tabs{display:flex;border-bottom:1px solid var(--b);position:sticky;top:0;background:var(--bg);z-index:5}
+.ptab{flex:1;padding:12px 0;font-size:12px;font-weight:500;color:var(--w3);text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.ptab.on{color:var(--w);border-bottom-color:var(--gold)}
+.profile-posts{padding:0}
+
+/* ── DEFINIÇÕES ── */
+.settings-wrap{flex:1;overflow-y:auto;padding:24px}
+.settings-wrap::-webkit-scrollbar{width:0}
+.settings-section{margin-bottom:28px}
+.settings-title{font-size:11px;font-weight:600;color:var(--w3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--b)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--b)}
+.setting-row:last-child{border-bottom:none}
+.setting-lbl{font-size:13px;color:var(--w)}
+.setting-sub{font-size:11px;color:var(--w3);margin-top:2px}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--s4);border:1px solid var(--b2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:rgba(201,168,76,.5);border-color:rgba(201,168,76,.4)}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:var(--w3);top:2px;left:2px;transition:all .2s}
+.toggle.on::after{background:var(--gold);transform:translateX(16px)}
+.btn-danger{padding:9px 20px;border:1px solid rgba(232,69,60,.3);border-radius:8px;background:var(--red2);color:#ff6b6b;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-danger:hover{background:rgba(232,69,60,.15)}
+
+/* ── COMPOSE MODAL ── */
+#compose{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s}
+#compose.on{opacity:1;pointer-events:all}
+.c-box{background:var(--s2);border:1px solid var(--b2);border-radius:16px;padding:24px;width:min(540px,92vw);transform:scale(.95) translateY(12px);transition:transform .32s cubic-bezier(.34,1.4,.64,1)}
+#compose.on .c-box{transform:scale(1) translateY(0)}
+.c-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.c-title{font-size:15px;font-weight:700;color:var(--w);letter-spacing:-.01em}
+.c-close{width:28px;height:28px;border-radius:50%;background:var(--s3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.c-close:hover{background:var(--s4)}
+.c-close svg{width:12px;height:12px;stroke:var(--w2);fill:none;stroke-width:2;stroke-linecap:round}
+.c-types{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.c-type{padding:5px 11px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.08em;cursor:pointer;border:1px solid var(--b);color:var(--w3);background:none;transition:all .18s;font-family:inherit}
+.c-type.on{color:var(--w)}
+.c-type[data-t="heresia"].on{background:rgba(232,69,60,.12);border-color:rgba(232,69,60,.3);color:#ff6b6b}
+.c-type[data-t="paradoxo"].on{background:var(--vio2);border-color:rgba(123,63,228,.3);color:#a07ae0}
+.c-type[data-t="hipotese"].on{background:var(--teal2);border-color:rgba(0,229,204,.3);color:var(--teal)}
+.c-type[data-t="descoberta"].on{background:var(--gold3);border-color:rgba(201,168,76,.3);color:var(--gold)}
+.c-type[data-t="sessao"].on{background:var(--pink2);border-color:rgba(255,107,157,.3);color:var(--pink)}
+.c-dims-sel{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.c-dim-opt{padding:4px 10px;border-radius:20px;font-size:10px;color:var(--w3);border:1px solid var(--b);cursor:pointer;transition:all .15s;background:none;font-family:inherit}
+.c-dim-opt.on{border-color:var(--gold);color:var(--gold);background:var(--gold3)}
+.c-ta{width:100%;background:var(--s3);border:1px solid var(--b);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--w);font-family:inherit;resize:none;outline:none;line-height:1.6;min-height:120px;transition:border-color .2s}
+.c-ta:focus{border-color:rgba(201,168,76,.3)}
+.c-ta::placeholder{color:var(--w4)}
+.c-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
+.c-chars{font-size:10px;color:var(--w3)}
+.c-submit{padding:9px 20px;border:none;border-radius:8px;background:linear-gradient(135deg,rgba(201,168,76,.92),rgba(130,90,15,.8));color:#000;font-size:12px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:all .2s;font-family:inherit}
+.c-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,.2)}
+.c-submit:disabled{opacity:.4;pointer-events:none}
+
+/* ── POST DETAIL MODAL ── */
+#postDetail{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .28s}
+#postDetail.on{opacity:1;pointer-events:all}
+.pd-box{background:var(--s2);border:1px solid var(--b2);border-radius:16px;width:min(600px,92vw);max-height:85vh;display:flex;flex-direction:column;transform:scale(.95) translateY(12px);transition:transform .32s cubic-bezier(.34,1.4,.64,1)}
+#postDetail.on .pd-box{transform:scale(1) translateY(0)}
+.pd-head{padding:16px 20px;border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between}
+.pd-title{font-size:14px;font-weight:700;color:var(--w)}
+.pd-body{flex:1;overflow-y:auto;padding:20px}
+.pd-body::-webkit-scrollbar{width:0}
+.pd-comments{border-top:1px solid var(--b);padding:16px 20px}
+.pd-comment-input{display:flex;gap:10px;align-items:flex-start}
+.pd-comment-ta{flex:1;background:var(--s3);border:1px solid var(--b);border-radius:9px;padding:10px 12px;font-size:12px;color:var(--w);font-family:inherit;resize:none;outline:none;line-height:1.5;min-height:60px;transition:border-color .2s}
+.pd-comment-ta:focus{border-color:rgba(201,168,76,.3)}
+.pd-send{padding:8px 14px;border:none;border-radius:8px;background:var(--gold2);border:1px solid rgba(201,168,76,.3);color:var(--gold);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;align-self:flex-end}
+.pd-send:hover{background:rgba(201,168,76,.2)}
+.comment{padding:10px 0;border-bottom:1px solid var(--b)}
+.comment:last-child{border-bottom:none}
+.comment-head{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.comment-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;flex-shrink:0}
+.comment-name{font-size:12px;font-weight:600;color:var(--w)}
+.comment-time{font-size:10px;color:var(--w3)}
+.comment-body{font-size:12px;color:var(--w2);line-height:1.55;padding-left:32px}
+
+/* toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--s3);border:1px solid var(--b2);border-radius:10px;padding:10px 18px;font-size:12px;color:var(--w);z-index:999;opacity:0;transition:all .28s;white-space:nowrap;pointer-events:none}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="toast"></div>
+
+<!-- ══ LOGIN ══ -->
+<div id="loginView">
+  <div class="l-left">
+    <div class="l-glow"></div><div class="l-glow2"></div>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 15 15" fill="none" stroke="#c9a84c" stroke-width="1.1" stroke-linecap="round">
+          <circle cx="7.5" cy="7.5" r="2.2"/><circle cx="7.5" cy="7.5" r="5" stroke-dasharray="1.4 2" opacity=".5"/>
+          <circle cx="7.5" cy="7.5" r="6.8" opacity=".18"/>
+          <line x1="7.5" y1=".2" x2="7.5" y2="2"/><line x1="7.5" y1="13" x2="7.5" y2="14.8"/>
+          <line x1=".2" y1="7.5" x2="2" y2="7.5"/><line x1="13" y1="7.5" x2="14.8" y2="7.5"/>
+        </svg>
+      </div>
+      <div class="brand-name">Dr. Parallax Habu</div>
+    </div>
+    <div class="hero">
+      <div class="hero-eyebrow">campo quântico · acesso restrito</div>
+      <div class="hero-title">Colide.<br>Pensa.<br><em>Existe.</em></div>
+      <div class="hero-desc">Uma rede de mentes que chocam ideias, lançam heresias científicas e mapeiam o cosmos do conhecimento. Sem filtros. Com método.</div>
+      <div class="hero-stats">
+        <div><div class="hstat-n" id="sU">—</div><div class="hstat-l">Exploradores</div></div>
+        <div><div class="hstat-n" id="sC">—</div><div class="hstat-l">Colisões</div></div>
+        <div><div class="hstat-n" id="sB">—</div><div class="hstat-l">Bósons</div></div>
+      </div>
+    </div>
+    <div class="l-footer">Campo Quântico © 2026</div>
+  </div>
+  <div class="l-right">
+    <div class="auth-box">
+      <div id="authForm">
+        <div class="tabs">
+          <button class="tab on" onclick="setMode('login')">Entrar</button>
+          <button class="tab" onclick="setMode('register')">Criar conta</button>
+        </div>
+        <div class="auth-title" id="aTitle">Bem-vindo de volta</div>
+        <div class="auth-sub" id="aSub">Introduz as tuas credenciais para aceder ao campo.</div>
+        <div class="err-box" id="errBox"></div>
+        <div class="field" id="nameF" style="display:none">
+          <label class="field-lbl">Identificador</label>
+          <div class="field-wrap"><input type="text" id="nameIn" placeholder="como te chamam no cosmos"></div>
+        </div>
+        <div class="field">
+          <label class="field-lbl">Vector de contacto</label>
+          <div class="field-wrap"><input type="email" id="emailIn" placeholder="email@dominio.com" autocomplete="email"></div>
+        </div>
+        <div class="field">
+          <label class="field-lbl">Chave de acesso</label>
+          <div class="field-wrap">
+            <input type="password" id="passIn" placeholder="mínimo 8 caracteres" autocomplete="current-password">
+            <svg class="eye" viewBox="0 0 24 24" onclick="toggleEye()"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+        </div>
+        <div class="forgot" id="forgotW"><a href="#" onclick="setMode('reset');return false">Esqueceste a chave?</a></div>
+        <button class="btn btn-gold" id="authBtn" onclick="doAuth()"><span id="authBtnLbl">Entrar no Cosmos</span></button>
+        <div class="auth-note">Ao entrar, aceitas os <a href="#">termos do cosmos</a></div>
+      </div>
+      <div class="auth-panel" id="confirmP">
+        <div class="ap-icon" style="background:var(--gold2);border:1px solid rgba(201,168,76,.18)">
+          <svg viewBox="0 0 24 24" stroke="var(--gold)"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="ap-title">Verifica o email</div>
+        <div class="ap-body">Enviámos um link de confirmação para</div>
+        <div class="ap-email" id="confEmail">—</div>
+        <div class="ap-body" style="margin-bottom:20px">Clica no link para activar a conta. Só depois acedes ao Cosmos.</div>
+        <button class="link-btn" onclick="resendConf()">Não recebeste? <span>Reenviar</span></button>
+      </div>
+      <div class="auth-panel" id="resetP">
+        <div class="ap-icon" style="background:var(--teal2);border:1px solid rgba(0,229,204,.18)">
+          <svg viewBox="0 0 24 24" stroke="var(--teal)"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <div class="ap-title">Recuperar acesso</div>
+        <div class="ap-body" style="margin-bottom:16px">Introduz o teu email e enviamos instruções.</div>
+        <div class="field" style="text-align:left">
+          <label class="field-lbl">Vector de contacto</label>
+          <div class="field-wrap"><input type="email" id="resetEmail" placeholder="email@dominio.com"></div>
+        </div>
+        <button class="btn btn-gold" onclick="doReset()" style="margin:14px 0 12px">Enviar instruções</button>
+        <button class="link-btn" onclick="setMode('login')">← Voltar ao acesso</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="appView" class="hidden">
+  <div class="side">
+    <div class="s-logo" onclick="showSec('feed')">
+      <svg viewBox="0 0 15 15" fill="none" stroke="#c9a84c" stroke-width="1.1" stroke-linecap="round">
+        <circle cx="7.5" cy="7.5" r="2.2"/><circle cx="7.5" cy="7.5" r="5" stroke-dasharray="1.4 2" opacity=".5"/>
+        <line x1="7.5" y1=".2" x2="7.5" y2="2"/><line x1="7.5" y1="13" x2="7.5" y2="14.8"/>
+        <line x1=".2" y1="7.5" x2="2" y2="7.5"/><line x1="13" y1="7.5" x2="14.8" y2="7.5"/>
+      </svg>
+    </div>
+    <div class="si on" data-s="feed" onclick="showSec('feed')" title="Campo Quântico">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+    </div>
+    <div class="si" data-s="explore" onclick="showSec('explore')" title="Explorar">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </div>
+    <div class="si" data-s="social" onclick="showSec('social')" title="Exploradores">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    </div>
+    <div class="si" data-s="notif" onclick="showSec('notif')" title="Notificações">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <div class="ndot" id="notifDot" style="display:none"></div>
+    </div>
+    <div class="sdiv"></div>
+    <div class="si" data-s="heresias" onclick="showSec('heresias')" title="Heresias">
+      <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <div class="si" data-s="paradoxos" onclick="showSec('paradoxos')" title="Paradoxos">
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+    </div>
+    <div class="si" data-s="dims" onclick="showSec('dims')" title="Dimensões">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+    </div>
+    <div class="si" data-s="oraculo" onclick="showSec('oraculo')" title="Oráculo">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </div>
+    <div class="sdiv"></div>
+    <div class="s-bot">
+      <div class="si" data-s="settings" onclick="showSec('settings')" title="Definições">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      </div>
+      <div class="s-av-wrap" onclick="showSec('profile')" title="Perfil">
+        <div class="s-av-ring"></div>
+        <div class="s-av" id="sideAv">?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- FEED -->
+    <div class="section on" id="sec-feed">
+      <div class="feed-col col-scroll">
+        <div class="col-head">
+          <div class="col-head-title">Campo Quântico</div>
+          <div class="ic-btn" onclick="openCompose()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          <div class="ic-btn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        </div>
+        <div class="dims-row">
+          <div class="dim" onclick="showSec('dims')"><div class="dim-ring"><div class="dim-inner">🔬</div></div><div class="dim-badge">—</div><div class="dim-name">Investig.</div></div>
+          <div class="dim" onclick="showSec('dims')"><div class="dim-ring"><div class="dim-inner">🧬</div></div><div class="dim-badge">—</div><div class="dim-name">Medicina</div></div>
+          <div class="dim" onclick="showSec('dims')"><div class="dim-ring"><div class="dim-inner">🌀</div></div><div class="dim-badge">—</div><div class="dim-name">Paradoxos</div></div>
+          <div class="dim" onclick="showSec('dims')"><div class="dim-ring cold"><div class="dim-inner">📐</div></div><div class="dim-badge" style="background:var(--w3)">—</div><div class="dim-name">Matemática</div></div>
+          <div class="dim" onclick="showSec('dims')"><div class="dim-ring"><div class="dim-inner">⚡</div></div><div class="dim-badge">—</div><div class="dim-name">Heresias</div></div>
+          <div class="dim" onclick="showSec('dims')"><div class="dim-ring"><div class="dim-inner">🌌</div></div><div class="dim-badge">—</div><div class="dim-name">Astrofísica</div></div>
+          <div class="dim" onclick="showSec('dims')"><div class="dim-ring cold"><div class="dim-inner">🔮</div></div><div class="dim-badge" style="background:var(--w3)">—</div><div class="dim-name">Oráculo</div></div>
+        </div>
+        <div id="feedPosts"><div style="padding:32px;text-align:center;color:var(--w3);font-size:13px">A carregar o campo quântico...</div></div>
+      </div>
+      <div class="r-panel">
+        <div class="rp">
+          <div class="rp-sec">
+            <div class="rp-av-row">
+              <div class="rp-av" id="rpAv">?</div>
+              <div>
+                <div class="rp-name" id="rpName">—</div>
+                <div class="rp-handle" id="rpHandle">—</div>
+                <div class="rp-badge">✦ EXPLORADOR</div>
+              </div>
+            </div>
+            <div class="metric"><div class="metric-lbl"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Bósons emitidos</div><div class="metric-val" id="mBosons">0 <small>✦</small></div></div>
+            <div class="metric"><div class="metric-lbl"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Seguidores</div><div class="metric-val" id="mFollowers">0 <small>obs.</small></div></div>
+            <div class="metric"><div class="metric-lbl"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Colisões</div><div class="metric-val" id="mPosts">0 <small>lançadas</small></div></div>
+          </div>
+          <div class="rp-sec">
+            <div class="rp-lbl">Índice de Kardashev</div>
+            <div class="k-val" id="kVal">K = 0.00</div>
+            <div class="k-desc" id="kDesc">Acumula bósons e colisões para subir de nível.</div>
+            <div class="k-bar"><div class="k-fill" id="kFill" style="width:0%"></div></div>
+          </div>
+          <div class="rp-sec">
+            <div class="rp-lbl">No campo quântico</div>
+            <div id="suggestList"><div style="font-size:11px;color:var(--w3)">A carregar...</div></div>
+          </div>
+          <div class="rp-sec">
+            <div class="rp-lbl">Perturbações detectadas</div>
+            <div id="trendList"><div style="font-size:11px;color:var(--w3)">A calcular...</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPLORE -->
+    <div class="section" id="sec-explore">
+      <div class="explore-wrap">
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" id="searchInput" placeholder="Pesquisa paradoxos, heresias, exploradores..." oninput="doSearch()">
+          </div>
+        </div>
+        <div class="filter-pills">
+          <button class="pill on" data-f="all" onclick="setFilter(this)">Tudo</button>
+          <button class="pill" data-f="heresia" onclick="setFilter(this)">⚡ Heresias</button>
+          <button class="pill" data-f="paradoxo" onclick="setFilter(this)">🌀 Paradoxos</button>
+          <button class="pill" data-f="hipotese" onclick="setFilter(this)">🔬 Hipóteses</button>
+          <button class="pill" data-f="descoberta" onclick="setFilter(this)">✦ Descobertas</button>
+          <button class="pill" data-f="sessao" onclick="setFilter(this)">📚 Sessões</button>
+        </div>
+        <div class="col-scroll" id="exploreResults" style="flex:1">
+          <div style="padding:32px;text-align:center;color:var(--w3);font-size:13px">Pesquisa algo ou filtra por tipo de colisão.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERESIAS -->
+    <div class="section" id="sec-heresias">
+      <div class="hp-wrap">
+        <div class="hp-header">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+            <div class="col-head-title">⚡ Heresias Científicas</div>
+            <div class="ic-btn" onclick="openCompose('heresia')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="hp-sub">Ideias que desafiam o consenso. Votadas pela comunidade. Defendidas com argumentos.</div>
+          <div class="hp-stats">
+            <div class="hps"><div class="hps-n" id="hCount">—</div><div class="hps-l">Heresias activas</div></div>
+            <div class="hps"><div class="hps-n" id="hVotes">—</div><div class="hps-l">Bósons totais</div></div>
+          </div>
+        </div>
+        <div class="hp-list" id="heresiasList"><div style="padding:32px;text-align:center;color:var(--w3);font-size:13px">A carregar heresias...</div></div>
+      </div>
+    </div>
+
+    <!-- PARADOXOS -->
+    <div class="section" id="sec-paradoxos">
+      <div class="hp-wrap">
+        <div class="hp-header paradox">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+            <div class="col-head-title">🌀 Paradoxos Abertos</div>
+            <div class="ic-btn" onclick="openCompose('paradoxo')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </div>
+          <div class="hp-sub">Perguntas sem resposta. Contradições do cosmos. Problemas que ninguém consegue resolver.</div>
+          <div class="hp-stats">
+            <div class="hps"><div class="hps-n" id="pCount">—</div><div class="hps-l">Paradoxos abertos</div></div>
+            <div class="hps"><div class="hps-n" id="pVotes">—</div><div class="hps-l">Bósons totais</div></div>
+          </div>
+        </div>
+        <div class="hp-list" id="paradoxosList"><div style="padding:32px;text-align:center;color:var(--w3);font-size:13px">A carregar paradoxos...</div></div>
+      </div>
+    </div>
+
+    <!-- DIMENSÕES -->
+    <div class="section" id="sec-dims">
+      <div class="dims-wrap">
+        <div class="col-head">
+          <div class="col-head-title">Dimensões do Cosmos</div>
+          <div class="col-head-sub">Explora as áreas do conhecimento quântico</div>
+        </div>
+        <div class="dims-grid" id="dimsGrid"></div>
+      </div>
+    </div>
+
+    <!-- SOCIAL -->
+    <div class="section" id="sec-social">
+      <div class="social-wrap">
+        <div class="col-head">
+          <div class="col-head-title">Exploradores</div>
+          <div class="col-head-sub">Mentes no campo quântico</div>
+        </div>
+        <div class="user-grid" id="userGrid"><div style="padding:32px;text-align:center;color:var(--w3);font-size:13px;grid-column:1/-1">A carregar exploradores...</div></div>
+      </div>
+    </div>
+
+    <!-- ORÁCULO -->
+    <div class="section" id="sec-oraculo">
+      <div class="oraculo-wrap">
+        <div class="oracle-hero">
+          <span class="oracle-symbol">🔮</span>
+          <div class="oracle-title">Oráculo do Cosmos</div>
+          <div class="oracle-sub">Lança uma pergunta ao campo quântico. A comunidade responde com argumentos, dados e paradoxos.</div>
+        </div>
+        <div class="oracle-ask">
+          <textarea class="oracle-input" id="oracleInput" placeholder="Qual é a tua pergunta para o cosmos?" rows="3" maxlength="400"></textarea>
+          <div class="oracle-foot">
+            <button class="btn-vio" onclick="submitOracle()">Lançar ao cosmos →</button>
+          </div>
+        </div>
+        <div class="oracle-list col-scroll" id="oracleList"><div style="padding:32px;text-align:center;color:var(--w3);font-size:13px">A invocar o oráculo...</div></div>
+      </div>
+    </div>
+
+    <!-- NOTIFICAÇÕES -->
+    <div class="section" id="sec-notif">
+      <div style="flex:1;display:flex;flex-direction:column">
+        <div class="col-head">
+          <div class="col-head-title">Notificações</div>
+          <div class="ic-btn" onclick="markAllRead()"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+        <div class="notif-wrap" id="notifList"><div style="padding:32px;text-align:center;color:var(--w3);font-size:13px">Sem notificações por enquanto.</div></div>
+      </div>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="section" id="sec-profile">
+      <div class="profile-wrap">
+        <div class="profile-header">
+          <div class="profile-bg-glow"></div>
+          <div class="profile-top">
+            <div class="profile-av-big" id="profAvBig">?</div>
+            <div class="profile-info">
+              <div class="profile-name" id="profName">—</div>
+              <div class="profile-handle" id="profHandle">—</div>
+              <div class="profile-badge-row">
+                <span class="profile-badge pb-owner" id="profOwnerBadge" style="display:none">✦ OWNER</span>
+                <span class="profile-badge pb-role" id="profRoleBadge">EXPLORADOR</span>
+              </div>
+            </div>
+          </div>
+          <div class="profile-bio" id="profBio">Explorador do campo quântico.</div>
+          <div class="profile-metrics">
+            <div class="pm"><div class="pm-n" id="pmPosts">0</div><div class="pm-l">Colisões</div></div>
+            <div class="pm"><div class="pm-n" id="pmBosons">0</div><div class="pm-l">Bósons</div></div>
+            <div class="pm"><div class="pm-n" id="pmFollowers">0</div><div class="pm-l">Seguidores</div></div>
+            <div class="pm"><div class="pm-n" id="pmFollowing">0</div><div class="pm-l">A seguir</div></div>
+          </div>
+        </div>
+        <div class="profile-tabs">
+          <div class="ptab on" onclick="setProfileTab('posts',this)">Colisões</div>
+          <div class="ptab" onclick="setProfileTab('bosons',this)">Bósons dados</div>
+        </div>
+        <div class="profile-posts" id="profilePosts"></div>
+      </div>
+    </div>
+
+    <!-- DEFINIÇÕES -->
+    <div class="section" id="sec-settings">
+      <div class="settings-wrap">
+        <div class="settings-section">
+          <div class="settings-title">Conta</div>
+          <div class="setting-row">
+            <div><div class="setting-lbl" id="setEmail">—</div><div class="setting-sub">Email da conta</div></div>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-lbl" id="setName">—</div><div class="setting-sub">Identificador no cosmos</div></div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Preferências</div>
+          <div class="setting-row">
+            <div><div class="setting-lbl">Notificações de bósons</div><div class="setting-sub">Quando alguém dá bóson nas tuas colisões</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-lbl">Notificações de colisões</div><div class="setting-sub">Quando respondem às tuas publicações</div></div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-lbl">Novos exploradores</div><div class="setting-sub">Quando alguém te começa a seguir</div></div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Sessão</div>
+          <div class="setting-row">
+            <div><div class="setting-lbl">Terminar sessão</div><div class="setting-sub">Sais do campo quântico</div></div>
+            <button class="btn-danger" onclick="signOut()">Sair</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPOSE -->
+<div id="compose">
+  <div class="c-box">
+    <div class="c-top">
+      <div class="c-title">Nova colisão</div>
+      <div class="c-close" onclick="closeCompose()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    </div>
+    <div class="c-types">
+      <button class="c-type on" data-t="heresia" onclick="selType(this)">⚡ Heresia</button>
+      <button class="c-type" data-t="paradoxo" onclick="selType(this)">🌀 Paradoxo</button>
+      <button class="c-type" data-t="hipotese" onclick="selType(this)">🔬 Hipótese</button>
+      <button class="c-type" data-t="descoberta" onclick="selType(this)">✦ Descoberta</button>
+      <button class="c-type" data-t="sessao" onclick="selType(this)">📚 Sessão</button>
+    </div>
+    <div class="c-dims-sel">
+      <button class="c-dim-opt on" onclick="selDim(this)">Medicina</button>
+      <button class="c-dim-opt" onclick="selDim(this)">Investigação</button>
+      <button class="c-dim-opt" onclick="selDim(this)">Paradoxos</button>
+      <button class="c-dim-opt" onclick="selDim(this)">Matemática</button>
+      <button class="c-dim-opt" onclick="selDim(this)">Astrofísica</button>
+      <button class="c-dim-opt" onclick="selDim(this)">Filosofia</button>
+      <button class="c-dim-opt" onclick="selDim(this)">Física</button>
+    </div>
+    <textarea class="c-ta" id="cText" placeholder="Lança a tua ideia para o campo quântico..." maxlength="800" oninput="updateChars()"></textarea>
+    <div class="c-foot">
+      <div class="c-chars"><span id="cChars">0</span>/800</div>
+      <button class="c-submit" id="cSubmit" onclick="submitPost()" disabled>Lançar colisão →</button>
+    </div>
+  </div>
+</div>
+
+<!-- POST DETAIL -->
+<div id="postDetail">
+  <div class="pd-box">
+    <div class="pd-head">
+      <div class="pd-title">Colisão</div>
+      <div class="c-close" onclick="closeDetail()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    </div>
+    <div class="pd-body" id="pdBody"></div>
+    <div class="pd-comments">
+      <div id="pdComments" style="margin-bottom:14px"></div>
+      <div class="pd-comment-input">
+        <textarea class="pd-comment-ta" id="pdCommentTa" placeholder="A tua colisão..." rows="2"></textarea>
+        <button class="pd-send" onclick="submitComment()">Enviar →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB = supabase.createClient(
+  'https://qyqxzlbpbzgvelisjjjo.supabase.co',
+  'sb_publishable_jUB3dS33nxOCDkqGxjLp2w_VyJmuQIo'
+);
+
+let USER=null, authMode='login', lastEmail='', cType='heresia', cDim='Medicina';
+let currentPost=null, exploreFilter='all', allPosts=[];
+
+const GRADS=['linear-gradient(135deg,#c9a84c,#7a4a10)','linear-gradient(135deg,#7b3fe4,#3d1090)','linear-gradient(135deg,#e8453c,#6a0f0a)','linear-gradient(135deg,#00e5cc,#0a4a40)','linear-gradient(135deg,#ff6b9d,#5a0a30)','linear-gradient(135deg,#4a9eff,#0a2a6a)'];
+const DIMS_DEF=[
+  {emoji:'🧬',name:'Medicina',desc:'Clínica, diagnóstico, terapêutica e saúde pública em contexto africano.',col:'#00e5cc',posts:0},
+  {emoji:'🔬',name:'Investigação',desc:'Metodologia científica, epidemiologia, bioestatística e ciência aberta.',col:'#c9a84c',posts:0},
+  {emoji:'🌀',name:'Paradoxos',desc:'Contradições do cosmos. Problemas sem solução. Questões abertas.',col:'#7b3fe4',posts:0},
+  {emoji:'📐',name:'Matemática',desc:'Estruturas abstractas, teoria dos números e fundamentos da lógica.',col:'#ff6b9d',posts:0},
+  {emoji:'⚡',name:'Heresias',desc:'Ideias que desafiam o consenso científico e académico vigente.',col:'#e8453c',posts:0},
+  {emoji:'🌌',name:'Astrofísica',desc:'Cosmologia, relatividade, física de partículas e estrutura do universo.',col:'#4a9eff',posts:0},
+  {emoji:'🔮',name:'Oráculo',desc:'Perguntas abertas à comunidade. Sabedoria colectiva do campo quântico.',col:'#a07ae0',posts:0},
+  {emoji:'💊',name:'Farmacologia',desc:'Mecanismos de acção, resistência antimicrobiana e farmacocinética.',col:'#ff9944',posts:0},
+  {emoji:'🧠',name:'Neurociência',desc:'Plasticidade neural, cognição, consciência e interfaces cérebro-máquina.',col:'#00e5cc',posts:0},
+  {emoji:'⚗️',name:'Química',desc:'Reacções, síntese orgânica, bioquímica e materiais avançados.',col:'#c9a84c',posts:0},
+  {emoji:'🌍',name:'Saúde Global',desc:'Epidemias, sistemas de saúde, determinantes sociais e equidade.',col:'#7b3fe4',posts:0},
+  {emoji:'🤖',name:'IA & Dados',desc:'Machine learning, modelos preditivos e ciência de dados em saúde.',col:'#4a9eff',posts:0},
+];
+const TAG_MAP={heresia:{cls:'t-h',lbl:'⚡ Heresia Científica'},paradoxo:{cls:'t-p',lbl:'🌀 Paradoxo Aberto'},hipotese:{cls:'t-d',lbl:'🔬 Hipótese'},descoberta:{cls:'t-s',lbl:'✦ Descoberta'},sessao:{cls:'t-e',lbl:'📚 Sessão de Estudo'}};
+
+// ── CANVAS ──
+(function(){
+  const c=document.getElementById('bg'),ctx=c.getContext('2d');
+  let W,H,stars=[],orbs=[];
+  const resize=()=>{W=c.width=innerWidth;H=c.height=innerHeight};
+  const init=()=>{
+    stars=Array.from({length:200},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*.85+.1,o:Math.random()*.5+.08,ph:Math.random()*Math.PI*2,sp:Math.random()*.004+.001}));
+    orbs=[{x:.15,y:.35,r:380,col:'201,168,76',sp:.00014},{x:.6,y:.7,r:290,col:'123,63,228',sp:.00019},{x:.85,y:.2,r:330,col:'0,229,204',sp:.00011}];
+  };
+  let t=0;
+  const draw=()=>{
+    ctx.clearRect(0,0,W,H);t+=.01;
+    orbs.forEach(o=>{
+      const ox=o.x*W+Math.sin(t*o.sp*60)*45,oy=o.y*H+Math.cos(t*o.sp*45)*28;
+      const g=ctx.createRadialGradient(ox,oy,0,ox,oy,o.r);
+      g.addColorStop(0,`rgba(${o.col},.05)`);g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    });
+    stars.forEach(s=>{
+      const op=s.o*(.6+.4*Math.sin(t*s.sp*100+s.ph));
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(242,242,242,${op})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  };
+  resize();init();draw();
+  addEventListener('resize',()=>{resize();init();});
+})();
+
+// ── HELPERS ──
+function toast(msg,dur=3000){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),dur);}
+function grad(str){const i=str.charCodeAt(0)%GRADS.length;return GRADS[i];}
+function initials(name){return name.slice(0,2).toUpperCase();}
+function timeAgo(ts){
+  const d=(Date.now()-ts)/1000;
+  if(d<60)return 'agora';if(d<3600)return Math.floor(d/60)+'m';
+  if(d<86400)return Math.floor(d/3600)+'h';return Math.floor(d/86400)+'d';
+}
+function xlate(msg){
+  const m={'Invalid login credentials':'Email ou chave de acesso incorrectos.','Email not confirmed':'Confirma o email antes de entrar.','User already registered':'Este email já está registado.','Password should be at least':'Chave de acesso demasiado curta.','Unable to validate email':'Formato de email inválido.','For security purposes':'Aguarda antes de pedir outro email.','rate limit':'Limite de emails atingido. Aguarda alguns minutos.'};
+  for(const k in m)if(msg.includes(k))return m[k];return msg;
+}
+
+// ── AUTH ──
+SB.auth.onAuthStateChange((event,session)=>{
+  if(session?.user){USER=session.user;enterApp();}
+  else{USER=null;showLogin();}
+});
+
+function showLogin(){
+  document.getElementById('loginView').classList.remove('hidden');
+  document.getElementById('appView').classList.add('hidden');
+  loadPublicStats();
+}
+function enterApp(){
+  document.getElementById('loginView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+  const name=USER.user_metadata?.display_name||USER.email.split('@')[0];
+  const ini=initials(name);
+  document.getElementById('sideAv').textContent=ini;
+  document.getElementById('rpAv').textContent=ini;
+  document.getElementById('rpName').textContent=name;
+  document.getElementById('rpHandle').textContent='@'+USER.email.split('@')[0];
+  document.getElementById('profAvBig').textContent=ini;
+  document.getElementById('profName').textContent=name;
+  document.getElementById('profHandle').textContent='@'+USER.email.split('@')[0];
+  document.getElementById('setEmail').textContent=USER.email;
+  document.getElementById('setName').textContent=name;
+  loadFeed();loadSuggestions();loadTrends();loadDims();loadUserMetrics();
+}
+
+function setMode(m){
+  authMode=m;hideErr();
+  document.getElementById('authForm').style.display='block';
+  document.getElementById('confirmP').classList.remove('on');
+  document.getElementById('resetP').classList.remove('on');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',(m==='login'&&i===0)||(m==='register'&&i===1)));
+  if(m==='login'){
+    document.getElementById('nameF').style.display='none';
+    document.getElementById('forgotW').style.display='block';
+    document.getElementById('aTitle').textContent='Bem-vindo de volta';
+    document.getElementById('aSub').textContent='Introduz as tuas credenciais para aceder ao campo.';
+    document.getElementById('authBtnLbl').textContent='Entrar no Cosmos';
+  }else if(m==='register'){
+    document.getElementById('nameF').style.display='block';
+    document.getElementById('forgotW').style.display='none';
+    document.getElementById('aTitle').textContent='Cria a tua identidade';
+    document.getElementById('aSub').textContent='Confirmação por email obrigatória antes do primeiro acesso.';
+    document.getElementById('authBtnLbl').textContent='Criar conta';
+  }else if(m==='reset'){
+    document.getElementById('authForm').style.display='none';
+    document.getElementById('resetP').classList.add('on');
+  }
+}
+function toggleEye(){const p=document.getElementById('passIn');p.type=p.type==='password'?'text':'password';}
+function showErr(msg){const e=document.getElementById('errBox');e.textContent=msg;e.classList.add('on');}
+function hideErr(){document.getElementById('errBox').classList.remove('on');}
+async function doAuth(){
+  hideErr();
+  const email=document.getElementById('emailIn').value.trim();
+  const pass=document.getElementById('passIn').value;
+  if(!email){showErr('Introduz o email.');return;}
+  if(pass.length<8){showErr('Mínimo 8 caracteres na chave de acesso.');return;}
+  const btn=document.getElementById('authBtn');btn.classList.add('busy');lastEmail=email;
+  if(authMode==='register'){
+    const name=document.getElementById('nameIn').value.trim();
+    if(!name){btn.classList.remove('busy');showErr('Escolhe um identificador.');return;}
+    const{error}=await SB.auth.signUp({email,password:pass,options:{data:{display_name:name}}});
+    btn.classList.remove('busy');
+    if(error){showErr(xlate(error.message));return;}
+    document.getElementById('authForm').style.display='none';
+    document.getElementById('confEmail').textContent=email;
+    document.getElementById('confirmP').classList.add('on');
+  }else{
+    const{error}=await SB.auth.signInWithPassword({email,password:pass});
+    btn.classList.remove('busy');
+    if(error){showErr(xlate(error.message));return;}
+  }
+}
+async function resendConf(){if(lastEmail){await SB.auth.resend({type:'signup',email:lastEmail});toast('Email reenviado.');}}
+async function doReset(){
+  const email=document.getElementById('resetEmail').value.trim();
+  if(!email)return;
+  await SB.auth.resetPasswordForEmail(email);
+  document.getElementById('resetP').innerHTML='<div class="ap-title" style="margin-bottom:10px">Email enviado ✓</div><div class="ap-body" style="margin-bottom:16px">Verifica a caixa de entrada.</div><button class="link-btn" onclick="setMode(\'login\')">← Voltar ao acesso</button>';
+}
+async function signOut(){await SB.auth.signOut();toast('Sessão terminada.');}
+
+// ── SECTIONS ──
+function showSec(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.si').forEach(s=>s.classList.remove('on'));
+  const sec=document.getElementById('sec-'+id);if(sec)sec.classList.add('on');
+  const si=document.querySelector(`.si[data-s="${id}"]`);if(si)si.classList.add('on');
+  if(id==='heresias')loadHeresias();
+  if(id==='paradoxos')loadParadoxos();
+  if(id==='social')loadSocial();
+  if(id==='oraculo')loadOracle();
+  if(id==='notif')loadNotifs();
+  if(id==='profile')loadProfile();
+  if(id==='explore')loadExplore();
+}
+
+// ── DB HELPERS ──
+async function getPosts(filter){
+  let q=SB.from('dph_data').select('*').eq('collection','posts').order('data->ts',{ascending:false}).limit(50);
+  if(filter&&filter!=='all')q=q.eq('data->type',filter);
+  const{data}=await q;
+  return(data||[]).map(r=>({...r.data,id:r.id,user_id:r.user_id}));
+}
+async function getBosonCount(postId){
+  const{count}=await SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','bosons').eq('data->post_id',`"${postId}"`);
+  return count||0;
+}
+async function hasVoted(postId,type='boson'){
+  if(!USER)return false;
+  const{count}=await SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection',type+'s').eq('user_id',USER.id).eq('data->post_id',`"${postId}"`);
+  return(count||0)>0;
+}
+
+// ── RENDER POST ──
+function renderPostHTML(p,showBorder=true){
+  const tag=TAG_MAP[p.type]||{cls:'t-s',lbl:'📌 Publicação'};
+  const g=grad(p.user_name||'A');
+  const ini=initials(p.user_name||'?');
+  const ago=timeAgo(p.ts||Date.now());
+  return `<div class="post" onclick="openDetail('${p.id}')" style="${showBorder?'':'border:none'}">
+    <div class="ph">
+      <div class="pav" style="background:${g}">${ini}</div>
+      <div class="pmeta">
+        <div class="puser">${p.user_name||'Explorador'} <span>· ${p.type||'colisão'}</span></div>
+        <div class="pdim"><span>${p.dim||'Cosmos'}</span></div>
+      </div>
+      <div class="ptime">${ago}</div>
+    </div>
+    <div class="ptag ${tag.cls}">${tag.lbl}</div>
+    <div class="pbody">${p.body||''}</div>
+    <div class="pact" onclick="event.stopPropagation()">
+      <button class="act" id="boson-${p.id}" onclick="vote('${p.id}','boson')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2a10 10 0 00-6.88 17.24M12 2a10 10 0 016.88 17.24"/><circle cx="12" cy="2" r="1" fill="currentColor" stroke="none"/><circle cx="5.12" cy="19.24" r="1" fill="currentColor" stroke="none"/><circle cx="18.88" cy="19.24" r="1" fill="currentColor" stroke="none"/></svg>
+        <span id="bcount-${p.id}">— Bóson</span>
+      </button>
+      <button class="act" id="anti-${p.id}" onclick="vote('${p.id}','antiboson')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 22a10 10 0 006.88-17.24M12 22a10 10 0 01-6.88-17.24"/><circle cx="12" cy="22" r="1" fill="currentColor" stroke="none"/></svg>
+        <span id="acount-${p.id}">— Antibóson</span>
+      </button>
+      <div class="act-div"></div>
+      <button class="act" onclick="openDetail('${p.id}')">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <span>Colisão</span>
+      </button>
+      <button class="act">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>Propagar</span>
+      </button>
+      <div class="act-sp"></div>
+      <button class="act"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></button>
+    </div>
+  </div>`;
+}
+
+async function loadVoteCounts(posts){
+  for(const p of posts){
+    const[b,a,bv,av]=await Promise.all([
+      SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','bosons').eq('data->post_id',`"${p.id}"`),
+      SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','antibosons').eq('data->post_id',`"${p.id}"`),
+      USER?SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','bosons').eq('user_id',USER.id).eq('data->post_id',`"${p.id}"`):Promise.resolve({count:0}),
+      USER?SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','antibosons').eq('user_id',USER.id).eq('data->post_id',`"${p.id}"`):Promise.resolve({count:0}),
+    ]);
+    const bEl=document.getElementById('bcount-'+p.id);
+    const aEl=document.getElementById('acount-'+p.id);
+    const bBtn=document.getElementById('boson-'+p.id);
+    const aBtn=document.getElementById('anti-'+p.id);
+    if(bEl)bEl.textContent=`${b.count||0} Bóson`;
+    if(aEl)aEl.textContent=`${a.count||0} Antibóson`;
+    if(bBtn&&(bv.count||0)>0)bBtn.classList.add('boson-on');
+    if(aBtn&&(av.count||0)>0)aBtn.classList.add('anti-on');
+  }
+}
+
+// ── FEED ──
+async function loadFeed(){
+  const posts=await getPosts();
+  allPosts=posts;
+  const el=document.getElementById('feedPosts');
+  if(!posts.length){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--w3);font-size:13px">O campo está silencioso. Lança a primeira colisão ✦</div>';return;}
+  el.innerHTML=posts.map(p=>renderPostHTML(p)).join('');
+  loadVoteCounts(posts);
+}
+
+// ── STATS ──
+async function loadPublicStats(){
+  const{count:u}=await SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','users_meta');
+  const{count:c}=await SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','posts');
+  const{count:b}=await SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','bosons');
+  document.getElementById('sU').textContent=u||'1';
+  document.getElementById('sC').textContent=c||'0';
+  document.getElementById('sB').textContent=b||'0';
+}
+
+async function loadUserMetrics(){
+  if(!USER)return;
+  const{count:posts}=await SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','posts').eq('user_id',USER.id);
+  const{count:bosons}=await SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','bosons').eq('data->target_user',`"${USER.id}"`);
+  const{count:followers}=await SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection','follows').eq('data->following',`"${USER.id}"`);
+  const p=posts||0,b=bosons||0,f=followers||0;
+  document.getElementById('mPosts').textContent=`${p} <small>lançadas</small>`;
+  document.getElementById('mBosons').textContent=`${b} <small>✦</small>`;
+  document.getElementById('mFollowers').textContent=`${f} <small>obs.</small>`;
+  document.getElementById('pmPosts').textContent=p;
+  document.getElementById('pmBosons').textContent=b;
+  document.getElementById('pmFollowers').textContent=f;
+  // K index
+  const k=Math.min(.999,((p*0.05+b*0.02+f*0.03)*0.1)).toFixed(3);
+  document.getElementById('kVal').textContent=`K = ${k}`;
+  const lvl=k<.2?'Observador Passivo':k<.4?'Explorador Iniciado':k<.6?'Viajante Solar':k<.8?'Arquitecto do Cosmos':'Entidade Kardashev';
+  document.getElementById('kDesc').textContent=lvl+' · acumula colisões e bósons para evoluir.';
+  document.getElementById('kFill').style.width=(k*100)+'%';
+}
+
+// ── VOTE ──
+async function vote(postId,type){
+  if(!USER){toast('Entra para votar.');return;}
+  const col=type==='boson'?'bosons':'antibosons';
+  const opp=type==='boson'?'antibosons':'bosons';
+  const{count:existing}=await SB.from('dph_data').select('*',{count:'exact',head:true}).eq('collection',col).eq('user_id',USER.id).eq('data->post_id',`"${postId}"`);
+  if((existing||0)>0){
+    // remove vote
+    const{data:rows}=await SB.from('dph_data').select('id').eq('collection',col).eq('user_id',USER.id).eq('data->post_id',`"${postId}"`).limit(1);
+    if(rows?.length)await SB.from('dph_data').delete().eq('id',rows[0].id);
+    document.getElementById(type==='boson'?'boson-':'anti-'+postId)?.classList.remove(type==='boson'?'boson-on':'anti-on');
+  }else{
+    // remove opposite
+    const{data:orows}=await SB.from('dph_data').select('id').eq('collection',opp).eq('user_id',USER.id).eq('data->post_id',`"${postId}"`).limit(1);
+    if(orows?.length)await SB.from('dph_data').delete().eq('id',orows[0].id);
+    await SB.from('dph_data').insert({id:crypto.randomUUID(),user_id:USER.id,collection:col,data:{post_id:postId,ts:Date.now()}});
+  }
+  // refresh counts for this post
+  const post=allPosts.find(p=>p.id===postId);
+  if(post)loadVoteCounts([post]);
+}
+
+// ── HERESIAS ──
+async function loadHeresias(){
+  const{data}=await SB.from('dph_data').select('*').eq('collection','posts').eq('data->type','"heresia"').order('data->ts',{ascending:false});
+  const posts=(data||[]).map(r=>({...r.data,id:r.id}));
+  document.getElementById('hCount').textContent=posts.length;
+  document.getElementById('hVotes').textContent='—';
+  const el=document.getElementById('heresiasList');
+  if(!posts.length){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--w3)">Sem heresias ainda. Lança a primeira ⚡</div>';return;}
+  el.innerHTML=posts.map((p,i)=>`
+    <div class="hp-item" onclick="openDetail('${p.id}')">
+      <div class="hp-item-head">
+        <div class="hp-rank">#${i+1}</div>
+        <div class="hp-item-title">${p.body?.slice(0,120)||''}${(p.body?.length||0)>120?'...':''}</div>
+      </div>
+      <div class="hp-item-foot">
+        <div class="hp-foot-av" style="background:${grad(p.user_name||'A')}">${initials(p.user_name||'?')}</div>
+        <div class="hp-foot-name">${p.user_name||'Explorador'} · ${timeAgo(p.ts||Date.now())}</div>
+        <div class="hp-foot-actions">
+          <button class="hp-act voted" onclick="event.stopPropagation();vote('${p.id}','boson')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2a10 10 0 00-6.88 17.24M12 2a10 10 0 016.88 17.24"/></svg> Bóson
+          </button>
+          <button class="hp-act" onclick="event.stopPropagation();openDetail('${p.id}')">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Colisão
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── PARADOXOS ──
+async function loadParadoxos(){
+  const{data}=await SB.from('dph_data').select('*').eq('collection','posts').eq('data->type','"paradoxo"').order('data->ts',{ascending:false});
+  const posts=(data||[]).map(r=>({...r.data,id:r.id}));
+  document.getElementById('pCount').textContent=posts.length;
+  document.getElementById('pVotes').textContent='—';
+  const el=document.getElementById('paradoxosList');
+  if(!posts.length){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--w3)">Sem paradoxos ainda. Lança o primeiro 🌀</div>';return;}
+  el.innerHTML=posts.map((p,i)=>`
+    <div class="hp-item" onclick="openDetail('${p.id}')">
+      <div class="hp-item-head">
+        <div class="hp-rank">#${i+1}</div>
+        <div class="hp-item-title">${p.body?.slice(0,120)||''}${(p.body?.length||0)>120?'...':''}</div>
+      </div>
+      <div class="hp-item-foot">
+        <div class="hp-foot-av" style="background:${grad(p.user_name||'A')}">${initials(p.user_name||'?')}</div>
+        <div class="hp-foot-name">${p.user_name||'Explorador'} · ${timeAgo(p.ts||Date.now())}</div>
+        <div class="hp-foot-actions">
+          <button class="hp-act" onclick="event.stopPropagation();vote('${p.id}','boson')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2a10 10 0 00-6.88 17.24M12 2a10 10 0 016.88 17.24"/></svg> Bóson
+          </button>
+          <button class="hp-act" onclick="event.stopPropagation();openDetail('${p.id}')">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Colisão
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── DIMS ──
+async function loadDims(){
+  const{data:posts}=await SB.from('dph_data').select('data->dim').eq('collection','posts');
+  const counts={};
+  (posts||[]).forEach(p=>{const d=p.dim;if(d)counts[d]=(counts[d]||0)+1;});
+  const el=document.getElementById('dimsGrid');
+  el.innerHTML=DIMS_DEF.map(d=>`
+    <div class="dim-card" onclick="filterByDim('${d.name}')">
+      <div class="dim-card-glow" style="background:radial-gradient(circle,${d.col},transparent)"></div>
+      <span class="dim-card-emoji">${d.emoji}</span>
+      <div class="dim-card-name">${d.name}</div>
+      <div class="dim-card-desc">${d.desc}</div>
+      <div class="dim-card-bar"><div class="dim-card-fill" style="width:${Math.min(100,(counts[d.name]||0)*10)}%;background:${d.col}"></div></div>
+      <div class="dim-card-stats">
+        <div class="dim-card-stat"><strong>${counts[d.name]||0}</strong>colisões</div>
+      </div>
+    </div>`).join('');
+}
+function filterByDim(dim){
+  showSec('explore');
+  document.getElementById('searchInput').value=dim;
+  doSearch();
+}
+
+// ── EXPLORE ──
+let exploreTimeout;
+function doSearch(){
+  clearTimeout(exploreTimeout);
+  exploreTimeout=setTimeout(async()=>{
+    const q=document.getElementById('searchInput').value.trim().toLowerCase();
+    const{data}=await SB.from('dph_data').select('*').eq('collection','posts').order('data->ts',{ascending:false}).limit(50);
+    let posts=(data||[]).map(r=>({...r.data,id:r.id}));
+    if(exploreFilter!=='all')posts=posts.filter(p=>p.type===exploreFilter);
+    if(q)posts=posts.filter(p=>(p.body||'').toLowerCase().includes(q)||(p.dim||'').toLowerCase().includes(q)||(p.user_name||'').toLowerCase().includes(q));
+    const el=document.getElementById('exploreResults');
+    if(!posts.length){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--w3);font-size:13px">Nenhuma colisão encontrada.</div>';return;}
+    el.innerHTML=posts.map(p=>renderPostHTML(p)).join('');
+    loadVoteCounts(posts);
+  },300);
+}
+function setFilter(el){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  exploreFilter=el.dataset.f;
+  doSearch();
+}
+async function loadExplore(){doSearch();}
+
+// ── SOCIAL ──
+async function loadSocial(){
+  const{data}=await SB.from('dph_data').select('*').eq('collection','users_meta').limit(40);
+  const el=document.getElementById('userGrid');
+  if(!data?.length){
+    // show current user as placeholder
+    const name=USER?.user_metadata?.display_name||USER?.email?.split('@')[0]||'Explorador';
+    el.innerHTML=`<div class="user-card">
+      <div class="uc-av" style="background:${grad(name)};position:relative"><div class="uc-av-ring"></div>${initials(name)}</div>
+      <div><div class="uc-name">${name}</div><div class="uc-handle">@${USER?.email?.split('@')[0]||'explorador'}</div></div>
+      <div class="uc-dims"><span class="uc-dim-tag">Cosmos</span></div>
+      <button class="uc-follow following">Tu</button>
+    </div>`;
+    return;
+  }
+  el.innerHTML=data.map(r=>{
+    const d=r.data;const name=d.name||'Explorador';
+    return `<div class="user-card">
+      <div class="uc-av" style="background:${grad(name)};position:relative"><div class="uc-av-ring"></div>${initials(name)}</div>
+      <div><div class="uc-name">${name}</div><div class="uc-handle">@${d.handle||name.toLowerCase()}</div></div>
+      <div class="uc-dims">${(d.dims||['Cosmos']).map(x=>`<span class="uc-dim-tag">${x}</span>`).join('')}</div>
+      <div class="uc-stats"><div><strong>${d.posts||0}</strong>colisões</div><div><strong>${d.bosons||0}</strong>bósons</div></div>
+      <button class="uc-follow" onclick="followUser('${r.user_id}',this)">Seguir</button>
+    </div>`;
+  }).join('');
+}
+async function followUser(uid,btn){
+  if(!USER)return;
+  await SB.from('dph_data').insert({id:crypto.randomUUID(),user_id:USER.id,collection:'follows',data:{following:uid,ts:Date.now()}});
+  btn.textContent='A seguir';btn.classList.add('following');toast('Seguindo ✦');
+}
+
+// ── ORACLE ──
+async function loadOracle(){
+  const{data}=await SB.from('dph_data').select('*').eq('collection','oracle').order('data->ts',{ascending:false}).limit(20);
+  const el=document.getElementById('oracleList');
+  if(!data?.length){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--w3)">O oráculo aguarda a primeira pergunta 🔮</div>';return;}
+  const items=await Promise.all((data||[]).map(async r=>{
+    const q=r.data;
+    const{data:answers}=await SB.from('dph_data').select('*').eq('collection','oracle_answers').eq('data->oracle_id',`"${r.id}"`).limit(5);
+    return{...q,id:r.id,answers:answers||[]};
+  }));
+  el.innerHTML=items.map(q=>`
+    <div class="oracle-item">
+      <div class="oi-q">${q.question||''}</div>
+      <div class="oi-meta">
+        <span style="color:var(--vio)">🔮</span>${q.user_name||'Explorador'} · ${timeAgo(q.ts||Date.now())}
+        · <span style="color:var(--teal)">${q.answers.length} resposta${q.answers.length!==1?'s':''}</span>
+      </div>
+      <div class="oi-answers">
+        ${q.answers.slice(0,2).map(a=>`
+          <div class="oi-answer">
+            <div class="oi-answer-head">${a.data?.user_name||'Explorador'}</div>
+            ${a.data?.body||''}
+          </div>`).join('')}
+      </div>
+      <button class="oi-reply-btn" onclick="replyOracle('${q.id}','${(q.question||'').replace(/'/g,"\\'")}')">+ Responder ao oráculo</button>
+    </div>`).join('');
+}
+async function submitOracle(){
+  if(!USER){toast('Entra para consultar o oráculo.');return;}
+  const q=document.getElementById('oracleInput').value.trim();
+  if(!q)return;
+  await SB.from('dph_data').insert({id:crypto.randomUUID(),user_id:USER.id,collection:'oracle',data:{question:q,user_name:USER.user_metadata?.display_name||USER.email.split('@')[0],ts:Date.now()}});
+  document.getElementById('oracleInput').value='';
+  loadOracle();toast('Pergunta lançada ao cosmos 🔮');
+}
+async function replyOracle(oId,question){
+  const body=prompt(`Responde: "${question}"`);
+  if(!body||!USER)return;
+  await SB.from('dph_data').insert({id:crypto.randomUUID(),user_id:USER.id,collection:'oracle_answers',data:{oracle_id:oId,body,user_name:USER.user_metadata?.display_name||USER.email.split('@')[0],ts:Date.now()}});
+  loadOracle();toast('Resposta enviada ao cosmos.');
+}
+
+// ── SUGGESTIONS ──
+async function loadSuggestions(){
+  // show some static + real users
+  document.getElementById('suggestList').innerHTML=`
+    <div class="su"><div class="su-av" style="background:linear-gradient(135deg,#e8453c,#6a0f0a)">VD</div><div style="flex:1"><div class="su-name">Vasco D.</div><div class="su-dim">Física · Heresias</div></div><button class="su-btn">Seguir</button></div>
+    <div class="su"><div class="su-av" style="background:linear-gradient(135deg,#00e5cc,#0a4a40)">MC</div><div style="flex:1"><div class="su-name">Mariana C.</div><div class="su-dim">Epidemiologia</div></div><button class="su-btn">Seguir</button></div>`;
+}
+
+// ── TRENDS ──
+async function loadTrends(){
+  const{data}=await SB.from('dph_data').select('data->dim').eq('collection','posts');
+  const counts={};
+  (data||[]).forEach(r=>{const d=r.dim;if(d)counts[d]=(counts[d]||0)+1;});
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const el=document.getElementById('trendList');
+  if(!sorted.length){el.innerHTML='<div style="font-size:11px;color:var(--w3)">A calcular perturbações...</div>';return;}
+  el.innerHTML=sorted.map(([dim,n])=>`
+    <div class="tr"><div class="tr-tag">#${dim.toLowerCase().replace(' ','-')}</div><div class="tr-sub"><div class="live"></div>${n} colisão${n!==1?'ões':''}</div></div>`).join('');
+}
+
+// ── NOTIFS ──
+async function loadNotifs(){
+  const{data}=await SB.from('dph_data').select('*').eq('collection','notifs').eq('user_id',USER?.id).order('data->ts',{ascending:false}).limit(30);
+  const el=document.getElementById('notifList');
+  if(!data?.length){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--w3);font-size:13px">Sem notificações por enquanto.</div>';return;}
+  el.innerHTML=data.map(r=>{
+    const n=r.data;const unread=!n.read;
+    return `<div class="notif-item ${unread?'unread':''}" onclick="markRead('${r.id}',this)">
+      <div class="ni-icon" style="background:${n.type==='boson'?'var(--gold2)':n.type==='follow'?'var(--teal2)':'var(--vio2)'}">
+        <svg viewBox="0 0 24 24" stroke="${n.type==='boson'?'var(--gold)':n.type==='follow'?'var(--teal)':'var(--vio)'}">
+          ${n.type==='boson'?'<circle cx="12" cy="12" r="4"/><path d="M12 2a10 10 0 00-6.88 17.24M12 2a10 10 0 016.88 17.24"/>':n.type==='follow'?'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>':'<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>'}
+        </svg>
+      </div>
+      <div class="ni-body">
+        <div class="ni-text"><strong>${n.from||'Alguém'}</strong> ${n.text||'interagiu com a tua colisão'}</div>
+        <div class="ni-time">${timeAgo(n.ts||Date.now())}</div>
+      </div>
+      ${unread?'<div class="ni-unread-dot"></div>':''}
+    </div>`;
+  }).join('');
+}
+async function markRead(id,el){
+  await SB.from('dph_data').update({data:{read:true}}).eq('id',id);
+  el.classList.remove('unread');el.querySelector('.ni-unread-dot')?.remove();
+}
+async function markAllRead(){
+  await SB.from('dph_data').update({data:{read:true}}).eq('collection','notifs').eq('user_id',USER?.id);
+  loadNotifs();
+}
+
+// ── PROFILE ──
+async function loadProfile(){
+  if(!USER)return;
+  const{data:posts}=await SB.from('dph_data').select('*').eq('collection','posts').eq('user_id',USER.id).order('data->ts',{ascending:false});
+  const myPosts=(posts||[]).map(r=>({...r.data,id:r.id}));
+  document.getElementById('pmPosts').textContent=myPosts.length;
+  const el=document.getElementById('profilePosts');
+  if(!myPosts.length){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--w3);font-size:13px">Ainda não lançaste nenhuma colisão.</div>';return;}
+  el.innerHTML=myPosts.map(p=>renderPostHTML(p)).join('');
+  loadVoteCounts(myPosts);
+}
+function setProfileTab(tab,el){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  if(tab==='posts')loadProfile();
+}
+
+// ── COMPOSE ──
+function openCompose(type){
+  if(type){
+    document.querySelectorAll('.c-type').forEach(t=>t.classList.remove('on'));
+    document.querySelector(`.c-type[data-t="${type}"]`)?.classList.add('on');
+    cType=type;
+  }
+  document.getElementById('compose').classList.add('on');
+}
+function closeCompose(){document.getElementById('compose').classList.remove('on');}
+function selType(el){document.querySelectorAll('.c-type').forEach(t=>t.classList.remove('on'));el.classList.add('on');cType=el.dataset.t;}
+function selDim(el){document.querySelectorAll('.c-dim-opt').forEach(t=>t.classList.remove('on'));el.classList.add('on');cDim=el.textContent;}
+function updateChars(){const t=document.getElementById('cText');document.getElementById('cChars').textContent=t.value.length;document.getElementById('cSubmit').disabled=t.value.trim().length<10;}
+async function submitPost(){
+  if(!USER){toast('Entra para lançar colisões.');return;}
+  const body=document.getElementById('cText').value.trim();
+  if(!body)return;
+  const name=USER.user_metadata?.display_name||USER.email.split('@')[0];
+  await SB.from('dph_data').insert({id:crypto.randomUUID(),user_id:USER.id,collection:'posts',data:{body,type:cType,dim:cDim,user_name:name,ts:Date.now()}});
+  closeCompose();
+  document.getElementById('cText').value='';
+  document.getElementById('cChars').textContent='0';
+  document.getElementById('cSubmit').disabled=true;
+  toast('Colisão lançada no cosmos ✦');
+  loadFeed();loadTrends();
+}
+
+// ── POST DETAIL ──
+async function openDetail(postId){
+  const{data:rows}=await SB.from('dph_data').select('*').eq('id',postId).limit(1);
+  if(!rows?.length)return;
+  currentPost=rows[0];
+  const p={...rows[0].data,id:rows[0].id};
+  document.getElementById('pdBody').innerHTML=renderPostHTML(p,false);
+  loadVoteCounts([p]);
+  // load comments
+  const{data:comments}=await SB.from('dph_data').select('*').eq('collection','comments').eq('data->post_id',`"${postId}"`).order('data->ts',{ascending:true});
+  const cel=document.getElementById('pdComments');
+  cel.innerHTML=(comments||[]).map(c=>`
+    <div class="comment">
+      <div class="comment-head">
+        <div class="comment-av" style="background:${grad(c.data?.user_name||'A')}">${initials(c.data?.user_name||'?')}</div>
+        <div class="comment-name">${c.data?.user_name||'Explorador'}</div>
+        <div class="comment-time">${timeAgo(c.data?.ts||Date.now())}</div>
+      </div>
+      <div class="comment-body">${c.data?.body||''}</div>
+    </div>`).join('');
+  document.getElementById('postDetail').classList.add('on');
+}
+function closeDetail(){document.getElementById('postDetail').classList.remove('on');currentPost=null;}
+async function submitComment(){
+  if(!USER||!currentPost){toast('Entra para comentar.');return;}
+  const body=document.getElementById('pdCommentTa').value.trim();
+  if(!body)return;
+  const name=USER.user_metadata?.display_name||USER.email.split('@')[0];
+  await SB.from('dph_data').insert({id:crypto.randomUUID(),user_id:USER.id,collection:'comments',data:{post_id:currentPost.id,body,user_name:name,ts:Date.now()}});
+  document.getElementById('pdCommentTa').value='';
+  openDetail(currentPost.id);
+  toast('Colisão enviada.');
+}
+
+// keys
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeCompose();closeDetail();}
+  if(e.key==='Enter'&&!document.getElementById('loginView').classList.contains('hidden')){
+    if(authMode==='reset')doReset();else doAuth();
+  }
+});
+</script>
+</body>
+</html>
